@@ -1,0 +1,31 @@
+# Java
+target/
+*.class
+
+# Node
+node_modules/
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+
+# Environment
+.env
+.env.*
+
+# Logs
+*.log
+
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Spring Boot
+backend/target/
+
+# React
+frontend/node_modules/
+

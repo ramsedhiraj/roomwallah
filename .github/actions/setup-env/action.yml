@@ -1,0 +1,32 @@
+name: 'Setup Build Environment'
+description: 'Sets up Java and Node.js runtimes with dependency caching'
+inputs:
+  setup-java:
+    description: 'Whether to set up Java 21 environment'
+    required: false
+    default: 'true'
+  setup-node:
+    description: 'Whether to set up Node.js 18 environment'
+    required: false
+    default: 'true'
+runs:
+  using: 'composite'
+  steps:
+    - name: Set up Java 21
+      if: ${{ inputs.setup-java == 'true' }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'maven'
+        cache-dependency-path: 'backend/pom.xml'
+      shell: bash
+
+    - name: Set up Node.js 18
+      if: ${{ inputs.setup-node == 'true' }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: 'frontend/package-lock.json'
+      shell: bash

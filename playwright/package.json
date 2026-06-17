@@ -1,0 +1,12 @@
+{
+  "name": "roomwallah-e2e",
+  "private": true,
+  "version": "1.0.0",
+  "devDependencies": {
+    "@playwright/test": "^1.42.1",
+    "typescript": "^5.2.2"
+  },
+  "scripts": {
+    "test": "playwright test"
+  }
+}

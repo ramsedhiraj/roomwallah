@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Color variables in RGB format to support Tailwind opacity */
+    --background: 15 23 42;      /* Slate 900 */
+    --foreground: 241 245 249;   /* Slate 100 */
+
+    --primary: 99 102 241;       /* Indigo 500 */
+    --primary-foreground: 255 255 255;
+
+    --secondary: 168 85 247;     /* Purple 500 */
+    --secondary-foreground: 255 255 255;
+
+    --card: 30 41 59;            /* Slate 800 */
+    --card-foreground: 248 250 252;
+
+    --border: 51 65 85;          /* Slate 700 */
+    --muted: 71 85 105;          /* Slate 600 */
+    --muted-foreground: 148 163 184; /* Slate 400 */
+
+    --accent: 236 72 153;        /* Pink 500 */
+    --accent-foreground: 255 255 255;
+
+    --radius: 1rem;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgb(15 23 42);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(51 65 85);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(99 102 241);
+}
+
+/* Premium utility classes */
+.glass {
+  background: rgba(30, 41, 59, 0.45);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-hover:hover {
+  background: rgba(30, 41, 59, 0.65);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 25px rgba(99, 102, 241, 0.15);
+}
+
+.glow-indigo {
+  box-shadow: 0 0 40px rgba(99, 102, 241, 0.2);
+}
+
+.glow-purple {
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.2);
+}
