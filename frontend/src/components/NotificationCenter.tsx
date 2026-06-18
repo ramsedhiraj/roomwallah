@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Bell, Check, Settings, Eye, Mail, MessageSquare, 
+  Bell, Check, Settings,MessageSquare, 
   ShieldAlert, Calendar, DollarSign, Wifi, WifiOff 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -58,7 +58,7 @@ const initialNotifications: Notification[] = [
 export default function NotificationCenter() {
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [isOpen, setIsOpen] = useState(false);
-  const [isLive, setIsLive] = useState(true); // Mock SSE state
+  const [isLive] = useState(true); // Mock SSE state
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
