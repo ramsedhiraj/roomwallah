@@ -19,21 +19,25 @@ jobs:
   validate-and-test:
     name: Validate and Test
     runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: roomwallah_test
-          POSTGRES_USER: roomwallah_user
-          POSTGRES_PASSWORD: roomwallah_secure_pass
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U roomwallah_user -d roomwallah_test"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+    
+    
+    
+services:
+  postgres:
+    image: postgres:16
+    env:
+      POSTGRES_DB: roomwallah_test
+      POSTGRES_USER: roomwallah_user
+      POSTGRES_PASSWORD: roomwallah_secure_pass
+    ports:
+      - 5432:5432
+    volumes:
+      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/01-schema.sql  # <-- ADD THIS LINE
+    options: >-
+      --health-cmd="pg_isready -U roomwallah_user -d roomwallah_test"
+      --health-interval=10s
+      --health-timeout=5s
+      --health-retries=5
 
       redis:
         image: redis:7
