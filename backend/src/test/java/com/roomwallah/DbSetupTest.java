@@ -1,5 +1,4 @@
 package com.roomwallah;
-
 import org.junit.jupiter.api.Test;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -12,10 +11,9 @@ public class DbSetupTest {
     public void setupTestDatabase() {
         System.out.println("=== STARTING DATABASE SETUP ===");
         
-        String url = "jdbc:postgresql://localhost:5432/postgres";
-        String user = "postgres";
-        String password = "root";
-        
+        String url = "jdbc:postgresql://localhost:5432/roomwallah_test";
+        String user = "roomwallah_user";
+        String password = "roomwallah_secure_pass";
         try (Connection conn = DriverManager.getConnection(url, user, password);
              Statement stmt = conn.createStatement()) {
             
