@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { paymentService, PaymentDto } from '../services/paymentService';
 import {
-  Activity, ShieldAlert, CheckCircle, XCircle, Search, RefreshCw, AlertTriangle, Play, Ban, Shield
+  Activity, Search, RefreshCw, AlertTriangle, Play, Ban
 } from 'lucide-react';
 
 export default function PaymentMonitorPage() {

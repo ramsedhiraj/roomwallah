@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bookingService, BookingResponse } from '../services/bookingService';
-import { Check, X, Calendar, Users, Layers, AlertCircle, RefreshCw, Loader2, MessageSquare } from 'lucide-react';
+import { Check, X, Calendar, Users, Layers, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
 
 export default function OwnerBookingDashboard() {
   const navigate = useNavigate();

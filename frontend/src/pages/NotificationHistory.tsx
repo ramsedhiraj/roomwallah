@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Bell, Mail, MessageSquare, ShieldAlert, Calendar, 
+  Bell, MessageSquare, ShieldAlert, Calendar, 
   DollarSign, Check, Trash2, Search, Filter, AlertTriangle 
 } from 'lucide-react';
 import { motion } from 'framer-motion';

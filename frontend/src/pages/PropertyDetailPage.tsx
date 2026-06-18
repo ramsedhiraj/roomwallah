@@ -3,7 +3,6 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { 
   Building, 
   MapPin, 
-  DollarSign, 
   Maximize, 
   Calendar, 
   BedDouble, 

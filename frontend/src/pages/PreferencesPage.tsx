@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
-  Bell, Save, Mail, MessageSquare, AlertTriangle, 
-  Clock, ShieldAlert, Sparkles, CheckCircle2 
+  Bell, Save, Mail, 
+  Clock, CheckCircle2 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

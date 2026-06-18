@@ -4,11 +4,10 @@ import {
   CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
 import { 
-  ShieldAlert, RefreshCw, AlertTriangle, CheckCircle, 
-  Users, Globe, Lock, ArrowUpRight, ArrowRight, Eye 
+  ShieldAlert, RefreshCw, 
+  Users, Globe, Eye 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 
 // Mock Data
 const riskScoreDistribution = [
@@ -52,7 +51,7 @@ const initialCases: RiskCase[] = [
 ];
 
 export default function FraudDashboard() {
-  const [cases, setCases] = useState<RiskCase[]>(initialCases);
+  const [cases] = useState<RiskCase[]>(initialCases);
   const [activeFilter, setActiveFilter] = useState<'ALL' | 'UNDER_REVIEW' | 'RESOLVED_CLEAN' | 'LOCKED_BLOCKED'>('ALL');
   const navigate = useNavigate();
 
@@ -222,7 +221,8 @@ export default function FraudDashboard() {
                   </button>
                 </div>
               </div>
-            )})}`
+            );
+          })}
           {filteredCases.length === 0 && (
             <div className="text-center py-12 text-slate-550 border border-slate-900 rounded-xl">
               No incidents in this queue matches filters.

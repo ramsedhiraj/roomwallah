@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { apiClient } from '../services/api';
 import {
-  GitCompare, RefreshCw, AlertCircle, CheckCircle, HelpCircle, FileSpreadsheet, Play, Check
+  GitCompare, RefreshCw, AlertCircle, CheckCircle, HelpCircle, FileSpreadsheet, Play
 } from 'lucide-react';
 
 export default function ReconciliationDashboardPage() {

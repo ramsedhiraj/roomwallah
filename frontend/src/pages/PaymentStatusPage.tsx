@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { paymentService, PaymentDto } from '../services/paymentService';
-import { CheckCircle2, XCircle, Download, RefreshCw, ArrowLeft, Loader2 } from 'lucide-react';
+import { Download, RefreshCw, ArrowLeft, Loader2 } from 'lucide-react';
 
 export default function PaymentStatusPage() {
   const [params] = useSearchParams();

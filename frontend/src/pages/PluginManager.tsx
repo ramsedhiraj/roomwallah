@@ -8,24 +8,20 @@ export default function PluginManager() {
     { id: 'insurance-broker', pluginName: 'Rent Insurance API Extension', version: '2.1.0', status: 'INACTIVE', permissions: 'READ_AGREEMENTS' }
   ]);
 
-  const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [newId, setNewId] = useState('');
   const [newName, setNewName] = useState('');
-  const [newVer, setNewVer] = useState('1.0.0');
+  const [newVer] = useState('1.0.0');
   const [newPerms, setNewPerms] = useState('');
 
   const fetchPlugins = async () => {
     try {
-      setLoading(true);
       const res = await apiClient.get('/admin/plugins');
       if (res.data && res.data.data) {
         setPlugins(res.data.data);
       }
     } catch (e) {
       console.warn("Failed fetching plugins, using default simulated data");
-    } finally {
-      setLoading(false);
     }
   };
 

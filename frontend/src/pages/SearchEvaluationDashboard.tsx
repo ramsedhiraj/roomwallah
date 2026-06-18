@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, LineChart as ChartIcon, CheckCircle } from 'lucide-react';
+import { Play, CheckCircle } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { apiClient } from '../services/api';
 
@@ -33,7 +33,7 @@ export default function SearchEvaluationDashboard() {
   const handleEvaluate = async () => {
     try {
       setLoading(true);
-      const res = await apiClient.post('/admin/search/evaluations', {});
+      await apiClient.post('/admin/search/evaluations', {});
       setSuccessMsg('Evaluation calculated and logged successfully!');
       setTimeout(() => setSuccessMsg(''), 4000);
       fetchHistory();

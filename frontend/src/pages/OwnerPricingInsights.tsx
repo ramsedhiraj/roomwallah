@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, RefreshCw, Sparkles, AlertCircle, HelpCircle, Check, DollarSign, Sliders } from 'lucide-react';
+import { TrendingUp, RefreshCw, Sparkles, Check, DollarSign, Sliders } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { apiClient } from '../services/api';
 

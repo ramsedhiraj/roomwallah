@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { bookingService, LeadResponse, LeadNote } from '../services/bookingService';
 import { apiClient } from '../services/api';
-import { Users, FileText, CheckCircle2, MessageSquare, AlertCircle, RefreshCw, Loader2, ArrowRight, TrendingUp } from 'lucide-react';
+import { Users, MessageSquare, AlertCircle, RefreshCw, Loader2, TrendingUp } from 'lucide-react';
 
 export default function LeadInbox() {
   const [leads, setLeads] = useState<LeadResponse[]>([]);

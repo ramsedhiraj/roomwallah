@@ -9,19 +9,14 @@ export default function RegionalHealthDashboard() {
     'EU-WEST': true,
   });
 
-  const [loading, setLoading] = useState(false);
-
   const fetchHealth = async () => {
     try {
-      setLoading(true);
       const res = await apiClient.get('/admin/regions');
       if (res.data && res.data.data) {
         setRegions(res.data.data);
       }
     } catch (e) {
       console.warn("Failed fetching regional health from backend, using default simulated statuses");
-    } finally {
-      setLoading(false);
     }
   };
 

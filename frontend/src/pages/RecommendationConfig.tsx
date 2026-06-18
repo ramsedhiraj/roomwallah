@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { 
-  Sliders, RefreshCw, Save, Sparkles, MapPin, 
-  ShieldCheck, HelpCircle, Eye, CheckCircle2 
+  Sliders, RefreshCw, Save, MapPin, 
+  Eye, CheckCircle2 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -307,8 +307,8 @@ export default function RecommendationConfig() {
                       paddingAngle={3}
                       dataKey="value"
                     >
-                      {chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      {chartData.map((entry) => (
+                        <Cell key={`cell-${entry.name}`} fill={entry.color} />
                       ))}
                     </Pie>
                     <Tooltip contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px' }} />
@@ -335,7 +335,7 @@ export default function RecommendationConfig() {
             </p>
 
             <div className="space-y-3 pt-1">
-              {previewList.slice(0, 4).map((listing, index) => (
+              {previewList.slice(0, 4).map((listing) => (
                 <div 
                   key={listing.id}
                   className="p-3 rounded-xl bg-slate-950/50 border border-slate-900 flex justify-between items-center gap-3 text-xs"

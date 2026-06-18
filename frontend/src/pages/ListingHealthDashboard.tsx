@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ShieldCheck, AlertTriangle, Eye, Users, Percent, Sparkles, Plus, CheckCircle2, ChevronRight, X } from 'lucide-react';
+import { AlertTriangle, Eye, Users, Percent, Sparkles, CheckCircle2, ChevronRight, X } from 'lucide-react';
 import { apiClient } from '../services/api';
 
 interface ListingHealth {
@@ -109,12 +109,6 @@ export default function ListingHealthDashboard() {
 
     setIsWizardOpen(false);
     setWizardTask(null);
-  };
-
-  const getScoreColor = (score: number) => {
-    if (score >= 85) return 'text-emerald-500 border-emerald-500/30 bg-emerald-500/5';
-    if (score >= 60) return 'text-amber-500 border-amber-500/30 bg-amber-500/5';
-    return 'text-rose-500 border-rose-500/30 bg-rose-500/5';
   };
 
   return (

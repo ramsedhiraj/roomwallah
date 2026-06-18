@@ -5,7 +5,6 @@ import {
   MapPin, 
   DollarSign, 
   FileText, 
-  ExternalLink, 
   Eye, 
   Edit3, 
   Trash2, 

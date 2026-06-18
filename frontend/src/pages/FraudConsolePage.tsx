@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { paymentService, PaymentDto } from '../services/paymentService';
 import {
-  ShieldAlert, RefreshCw, AlertTriangle, CheckCircle, Shield, Globe, Users, Clock
+  ShieldAlert, RefreshCw, AlertTriangle, Shield, Globe, Users, Clock
 } from 'lucide-react';
 
 export default function FraudConsolePage() {

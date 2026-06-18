@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Sparkles, Sliders, CheckCircle2, Heart, HeartOff, Trash2, MapPin, BadgePercent, Settings, BookOpen, Languages, Check } from 'lucide-react';
+import { Sparkles, Heart, Trash2, MapPin, BadgePercent, Settings, Languages } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { apiClient } from '../services/api';
-import { Locale, getTranslation } from '../utils/i18n';
+import { Locale } from '../utils/i18n';
 
 interface RecommendedProperty {
   id: string;
@@ -130,8 +130,6 @@ export default function PersonalizedFeed() {
       console.warn('Backend call failed, updated parameters locally.');
     }
   };
-
-  const t = (key: Parameters<typeof getTranslation>[1]) => getTranslation(locale, key);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-slate-100">

@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  ShieldAlert, User, ShieldCheck, Check, Trash2, ArrowLeft, 
-  MapPin, ShieldCheck as VerifiedIcon, ShieldAlert as SuspiciousIcon, 
-  Lock, Key, AlertTriangle, AlertCircle, Terminal, HelpCircle 
+  ShieldAlert, User, ShieldCheck, Check, ArrowLeft, 
+  ShieldCheck as VerifiedIcon, ShieldAlert as SuspiciousIcon, 
+  Lock, AlertTriangle, AlertCircle, Terminal 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
