@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { 
-  FileText, Search, Filter, ShieldAlert, AlertTriangle, 
-  CheckCircle2, ArrowRight, User, Eye, X, RefreshCw 
+  FileText, Search, ShieldAlert, AlertTriangle, 
+  User, Eye, X 
 } from 'lucide-react';
-import UserActivityTimeline, { ActivityItem } from '../components/UserActivityTimeline';
+import UserActivityTimeline from '../components/UserActivityTimeline';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Mock system audit events
@@ -36,7 +36,6 @@ export default function AuditLogsPage() {
   
   // Side drawer state
   const [selectedUser, setSelectedUser] = useState<{ id: string; name: string } | null>(null);
-  const [loading, setLoading] = useState(false);
   const [showLedgerReport, setShowLedgerReport] = useState(false);
 
   const filteredLogs = auditEventsMock.filter(log => {

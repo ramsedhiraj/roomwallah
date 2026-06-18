@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { 
-  AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
 import { 
-  TrendingUp, Users, Home, ShieldAlert, Award, DollarSign, 
-  MapPin, ShoppingBag, ArrowUpRight, ArrowDownRight, RefreshCw, Download 
+  TrendingUp, Users, Home, ShieldAlert, DollarSign, 
+  MapPin, ArrowUpRight, ArrowDownRight, RefreshCw, Download 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 

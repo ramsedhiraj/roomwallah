@@ -7,15 +7,12 @@ import {
   ModerationCaseDto 
 } from '../services/trustService';
 import { 
-  ShieldAlert, 
   UserCheck, 
   UserX, 
   Clock, 
   Search, 
-  AlertCircle, 
   Loader2, 
   CornerDownRight,
-  Filter,
   CheckCircle,
   XCircle,
   FileText

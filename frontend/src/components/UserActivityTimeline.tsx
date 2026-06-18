@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
-  LogIn, UserCheck, ShieldAlert, Key, Edit, Eye, 
-  MapPin, Clock, ArrowRight, ShieldCheck 
+  LogIn, ShieldAlert, Edit, Eye, 
+  MapPin, Clock, ShieldCheck 
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 

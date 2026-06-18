@@ -5,10 +5,8 @@ import {
   PolarAngleAxis, PolarRadiusAxis, Radar 
 } from 'recharts';
 import { 
-  TrendingUp, Award, Activity, Compass, AlertCircle, 
-  DollarSign, PieChart, Info, RefreshCw, BarChart2, Download 
+  Info, BarChart2, Download 
 } from 'lucide-react';
-import { motion } from 'framer-motion';
 
 // Mock Data
 const pricingTrends = [

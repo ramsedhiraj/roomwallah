@@ -22,20 +22,15 @@ export default function CostDashboard() {
     avgHallucinationRisk: 0.02
   });
 
-  const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        setLoading(true);
         const res = await apiClient.get('/admin/ai-analytics/dashboard');
         if (res.data && res.data.data) {
           setStats(res.data.data);
         }
       } catch (e) {
         console.warn("Failed fetching live AI cost stats, using simulated values");
-      } finally {
-        setLoading(false);
       }
     };
     fetchStats();

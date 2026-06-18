@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bookingService, BookingResponse, PropertyVisitResponse } from '../services/bookingService';
 import { apiClient } from '../services/api';
-import { Shield, Settings, Layers, Calendar, Users, AlertCircle, RefreshCw, Loader2, ArrowRight } from 'lucide-react';
+import { Shield, Settings, Layers, AlertCircle, RefreshCw, ArrowRight } from 'lucide-react';
 
 export default function BookingAdminDashboard() {
   const navigate = useNavigate();
 
   const [bookings, setBookings] = useState<BookingResponse[]>([]);
   const [visits, setVisits] = useState<PropertyVisitResponse[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -17,12 +16,11 @@ export default function BookingAdminDashboard() {
   }, []);
 
   const fetchData = async () => {
-    setLoading(true);
     setError(null);
     try {
       // Admins load all platform booking records
       // Wait, we can fetch all admin bookings via GET /api/v1/admin/bookings (we mapped this in BookingAdminController for owners, but admins can access it too)
-      const [bookingsData, visitsData] = await Promise.all([
+      const [bookingsData] = await Promise.all([
         bookingService.getOwnerBookings(), // loads bookings owned/administered
         apiClient.get('/admin/leads') // loads leads to view stats (just mock or fetch)
       ]);
@@ -37,17 +35,7 @@ export default function BookingAdminDashboard() {
       console.error('Failed to load admin stats', err);
       // Wait, if it returns 403 because role is not admin, we can default to showing fallback data
       setError('Could not load administrative stats. Make sure you possess the ADMIN role.');
-    } finally {
-      setLoading(false);
     }
-  };
-
-  const formatDate = (isoString: string) => {
-    return new Date(isoString).toLocaleDateString(undefined, {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric'
-    });
   };
 
   return (

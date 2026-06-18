@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { 
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, 
+  LineChart, Line, XAxis, YAxis, 
   CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
 import { 
-  Terminal, Key, Activity, ShieldAlert, Cpu, 
-  BookOpen, Code, ArrowUpRight, Download, RefreshCw 
+  Terminal, Key, 
+  BookOpen, Code, Download, RefreshCw 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 
 // Mock developer stats
 const apiUsageData = [

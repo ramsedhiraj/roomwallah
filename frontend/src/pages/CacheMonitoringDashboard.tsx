@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Zap, Database, RefreshCw, RefreshCw as WarmupIcon, 
-  Trash2, Terminal, AlertTriangle, ShieldCheck, CheckCircle2 
+  Zap, Database, RefreshCw as WarmupIcon, 
+  Trash2, Terminal, AlertTriangle, CheckCircle2 
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -28,7 +28,6 @@ export default function CacheMonitoringDashboard() {
   const [stampedeLocks, setStampedeLocks] = useState(2);
   const [showConfirmPurge, setShowConfirmPurge] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
   // Simulate invalidation events in real-time
   useEffect(() => {
@@ -62,14 +61,12 @@ export default function CacheMonitoringDashboard() {
   };
 
   const handlePurgeAll = () => {
-    setLoading(true);
     setShowConfirmPurge(false);
     setTimeout(() => {
       setL1Hits(0.0);
       setL2Hits(0.0);
       setStampedeLocks(0);
       setLogs([]);
-      setLoading(false);
       triggerToast('All caching layers purged. L1/L2 caches reset to cold.');
     }, 1000);
   };

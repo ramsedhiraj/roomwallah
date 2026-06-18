@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Sparkles, Sliders, Brain, ArrowRight, CheckCircle2, AlertTriangle, ShieldCheck, MapPin, Heart } from 'lucide-react';
+import { Search, Sparkles, Sliders, Brain, ArrowRight, CheckCircle2, AlertTriangle, MapPin, Heart } from 'lucide-react';
 import { apiClient } from '../services/api';
-import { motion, AnimatePresence } from 'framer-motion';
 
 interface PropertyResult {
   id: string;

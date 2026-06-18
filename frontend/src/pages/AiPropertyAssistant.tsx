@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Sparkles, User, Brain, AlertCircle, Trash2, CheckCircle2, History, Languages } from 'lucide-react';
+import { MessageSquare, X, Send, Sparkles, User, Brain, Trash2, History, Languages } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { apiClient } from '../services/api';
 import { getTranslation, Locale } from '../utils/i18n';

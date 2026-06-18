@@ -8,12 +8,11 @@ export default function AgreementManagement() {
     { id: 'agr-2', propertyId: 'prop-456', status: 'SIGNED', rentAmount: 22000, startDate: '2026-06-01', endDate: '2027-05-31', termsVersion: 2 }
   ]);
 
-  const [loading, setLoading] = useState(false);
   const [showDraftForm, setShowDraftForm] = useState(false);
   
-  const [propId, setPropId] = useState('prop-123');
-  const [tenantId, setTenantId] = useState('tenant-uuid-placeholder');
-  const [ownerId, setOwnerId] = useState('owner-uuid-placeholder');
+  const [propId] = useState('prop-123');
+  const [tenantId] = useState('tenant-uuid-placeholder');
+  const [ownerId] = useState('owner-uuid-placeholder');
   const [rent, setRent] = useState(15000);
   const [start, setStart] = useState('2026-07-01');
   const [end, setEnd] = useState('2027-06-30');
@@ -24,15 +23,12 @@ export default function AgreementManagement() {
 
   const fetchAgreements = async () => {
     try {
-      setLoading(true);
       const res = await apiClient.get('/agreements/tenant');
       if (res.data && res.data.data) {
         setAgreements(res.data.data);
       }
     } catch (e) {
       console.warn("Failed fetching agreements from backend, using default simulated list");
-    } finally {
-      setLoading(false);
     }
   };
 

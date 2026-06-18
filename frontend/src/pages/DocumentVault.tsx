@@ -6,26 +6,22 @@ export default function DocumentVault() {
   const [docs, setDocs] = useState<any[]>([
     { id: 'doc-1', fileName: 'lease_agreement_2026.pdf', documentType: 'LEASE', isEncrypted: true, expiresAt: '2027-06-15T18:00:00Z', createdAt: '2026-06-15T18:00:00Z' },
     { id: 'doc-2', fileName: 'government_id_proof.png', documentType: 'KYC', isEncrypted: true, expiresAt: null, createdAt: '2026-06-14T12:00:00Z' }
-  ]);
+    ]);
 
-  const [loading, setLoading] = useState(false);
-  const [fileName, setFileName] = useState('');
-  const [docType, setDocType] = useState('KYC');
-  const [fileContent, setFileContent] = useState('Sample raw content to simulate pdf file');
+    const [fileName, setFileName] = useState('');
+    const [docType, setDocType] = useState('KYC');
+    const [fileContent, setFileContent] = useState('Sample raw content to simulate pdf file');
 
-  const fetchDocs = async () => {
+    const fetchDocs = async () => {
     try {
-      setLoading(true);
       const res = await apiClient.get('/vault/documents');
       if (res.data && res.data.data) {
         setDocs(res.data.data);
       }
     } catch (e) {
       console.warn("Failed fetching vault documents, using defaults");
-    } finally {
-      setLoading(false);
     }
-  };
+    };
 
   useEffect(() => {
     fetchDocs();

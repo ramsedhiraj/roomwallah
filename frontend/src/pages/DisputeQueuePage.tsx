@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { paymentService, DisputeDto } from '../services/paymentService';
 import {
-  Gavel, RefreshCw, AlertCircle, CheckCircle, Scale, Shield, FileText, ChevronDown, ChevronUp, AlertTriangle, Send
+  RefreshCw, Scale, ChevronDown, ChevronUp, AlertTriangle, Send
 } from 'lucide-react';
 import { apiClient } from '../services/api';
 

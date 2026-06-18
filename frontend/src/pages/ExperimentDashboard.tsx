@@ -8,21 +8,17 @@ export default function ExperimentDashboard() {
     { experimentName: 'dynamic_pricing_delhi', isActive: true, treatmentCount: 220, controlCount: 215, totalAssigned: 435 },
   ]);
 
-  const [loading, setLoading] = useState(false);
   const [newExpName, setNewExpName] = useState('');
   const [newTraffic, setNewTraffic] = useState(50);
 
   const fetchExperiments = async () => {
     try {
-      setLoading(true);
       const res = await apiClient.get('/admin/experiments');
       if (res.data && res.data.data) {
         setExperiments(res.data.data);
       }
     } catch (e) {
       console.warn("Failed fetching experiments from backend, using default simulated data");
-    } finally {
-      setLoading(false);
     }
   };
 

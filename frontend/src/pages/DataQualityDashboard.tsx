@@ -10,19 +10,15 @@ export default function DataQualityDashboard() {
   ]);
 
   const [filter, setFilter] = useState('ALL');
-  const [loading, setLoading] = useState(false);
 
   const fetchTasks = async () => {
     try {
-      setLoading(true);
       const res = await apiClient.get('/admin/data-quality/remediation-tasks');
       if (res.data && res.data.data) {
         setTasks(res.data.data);
       }
     } catch (e) {
       console.warn("Failed fetching quality remediation tasks, using default simulated data");
-    } finally {
-      setLoading(false);
     }
   };
 

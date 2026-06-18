@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { paymentService, PaymentDto } from '../services/paymentService';
 import {
-  TrendingUp, RefreshCw, AlertCircle, Percent, DollarSign, Wallet, ArrowUpRight, ShieldAlert, Award
+  TrendingUp, RefreshCw, AlertCircle, DollarSign, Wallet, ArrowUpRight, ShieldAlert, Award
 } from 'lucide-react';
 
 export default function FinanceAnalyticsPage() {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { 
-  Key, Plus, RotateCw, Trash2, Edit3, Eye, Copy, 
+  Key, Plus, RotateCw, Trash2, Copy, 
   Check, ShieldAlert, ArrowLeft, CheckCircle2, X 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';

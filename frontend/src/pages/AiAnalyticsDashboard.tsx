@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Cpu, Brain, Activity, Sliders, Sparkles, TrendingUp, BarChart3, Database, Check, AlertOctagon, RefreshCw, Trash2, Languages } from 'lucide-react';
+import { Brain, Activity, Sliders, Sparkles, TrendingUp, BarChart3, Check, AlertOctagon, RefreshCw, Trash2, Languages } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import { apiClient } from '../services/api';
 import { getTranslation, Locale } from '../utils/i18n';

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertTriangle, Trash2, ShieldAlert, Sparkles, Check, ChevronRight, CheckCircle2, UserCheck, AlertOctagon } from 'lucide-react';
+import { AlertTriangle, Sparkles, Check, CheckCircle2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { apiClient } from '../services/api';
 
