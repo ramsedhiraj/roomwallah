@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  AreaChart, Area, LineChart, Line, XAxis, YAxis, 
+  AreaChart, Area, XAxis, YAxis, 
   CartesianGrid, Tooltip, Legend, ResponsiveContainer 
 } from 'recharts';
 import { 
-  Cpu, HardDrive, Database, Zap, RefreshCw, 
+  Cpu, Database, Zap, RefreshCw, 
   CheckCircle2, AlertTriangle, XCircle, Clock 
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 // Mock actuator stats
 const performanceMetrics = [
@@ -38,7 +37,6 @@ const initialLogTraces: LogTrace[] = [
 export default function SystemHealthDashboard() {
   const [logs, setLogs] = useState<LogTrace[]>(initialLogTraces);
   const [loading, setLoading] = useState(false);
-  const [healthStatus, setHealthStatus] = useState<'HEALTHY' | 'DEGRADED' | 'CRITICAL'>('HEALTHY');
 
   // Simulate live logging trace
   useEffect(() => {
@@ -72,7 +70,6 @@ export default function SystemHealthDashboard() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      setHealthStatus('HEALTHY');
     }, 800);
   };
 

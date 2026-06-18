@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  CheckCircle2, AlertTriangle, XCircle, ArrowLeft, 
-  Clock, ShieldCheck, Mail, Send, Activity 
+  CheckCircle2, 
+  Clock, ShieldCheck, Send, Activity 
 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface SystemComponent {
@@ -27,7 +26,6 @@ const mockIncidents = [
 ];
 
 export default function ServiceStatusPage() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 

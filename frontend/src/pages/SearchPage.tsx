@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Search, MapPin, SlidersHorizontal, Bookmark, Sparkles, AlertTriangle, ShieldCheck, Heart, RefreshCw } from 'lucide-react';
+import { Search, SlidersHorizontal, Bookmark, Sparkles, AlertTriangle, ShieldCheck, RefreshCw } from 'lucide-react';
 import { searchService } from '../services/searchService';
 import type { PropertyCard, SearchParams, TrendingQueryItem } from '../services/searchService';
 import PropertyResultsGrid from '../components/PropertyResultsGrid';

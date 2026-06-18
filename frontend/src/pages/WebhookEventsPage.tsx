@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { paymentService, WebhookDto } from '../services/paymentService';
 import {
-  Code, RefreshCw, AlertCircle, CheckCircle, HelpCircle, Terminal, Play, ChevronDown, ChevronUp, AlertTriangle
+  RefreshCw, AlertCircle, Terminal, Play, ChevronDown, ChevronUp, AlertTriangle
 } from 'lucide-react';
 
 export default function WebhookEventsPage() {

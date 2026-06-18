@@ -209,7 +209,7 @@ export default function VisitCalendar() {
 
               <form onSubmit={handleSaveCalendar} className="space-y-6">
                 <div className="space-y-3">
-                  {rules.map((rule, idx) => (
+                  {rules.map((rule) => (
                     <div
                       key={rule.dayOfWeek}
                       className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-3 border border-border rounded-xl gap-3"

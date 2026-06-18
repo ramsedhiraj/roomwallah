@@ -12,8 +12,6 @@ import {
   CheckCircle2, 
   Loader2, 
   ChevronRight, 
-  ChevronLeft,
-  ShieldAlert,
   Building,
   Check,
   RefreshCw,

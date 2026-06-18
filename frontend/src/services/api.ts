@@ -81,7 +81,7 @@ apiClient.interceptors.response.use(
             refreshToken: rawRefreshToken,
           });
 
-          const { accessToken, refreshToken, role } = response.data.data;
+          const { accessToken, refreshToken } = response.data.data;
 
           // Save new tokens
           useAuthStore.getState().setToken(accessToken);

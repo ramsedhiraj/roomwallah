@@ -16,21 +16,17 @@ export default function TrustScoreConsole() {
     explanationJson: '{"kyc": "PASSED", "reviews": "EXCELLENT", "cancellations": "NONE"}'
   });
 
-  const [loading, setLoading] = useState(false);
   const [overrideValue, setOverrideValue] = useState(85);
   const [overrideReason, setOverrideReason] = useState('');
 
   const fetchScore = async () => {
     try {
-      setLoading(true);
       const res = await apiClient.get('/admin/trust/score/user-123');
       if (res.data && res.data.data) {
         setScore(res.data.data);
       }
     } catch (e) {
       console.warn("Failed fetching trust score, using defaults");
-    } finally {
-      setLoading(false);
     }
   };
 

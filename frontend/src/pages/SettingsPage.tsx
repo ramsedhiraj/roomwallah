@@ -17,7 +17,6 @@ export default function SettingsPage() {
   });
   
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [showDeactivateModal, setShowDeactivateModal] = useState(false);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -65,15 +64,12 @@ export default function SettingsPage() {
 
   const saveSettings = async (updatedPrefs: typeof preferences) => {
     try {
-      setSaving(true);
       setStatusMessage(null);
       await apiClient.put('/users/me', updatedPrefs);
       setStatusMessage({ type: 'success', text: 'Settings saved successfully' });
     } catch (err: any) {
       console.error(err);
       setStatusMessage({ type: 'error', text: 'Failed to save settings' });
-    } finally {
-      setSaving(false);
     }
   };
 

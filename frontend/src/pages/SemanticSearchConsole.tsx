@@ -36,7 +36,7 @@ export default function SemanticSearchConsole() {
     vector: number[];
   } | null>(null);
 
-  const [logs, setLogs] = useState<QueryLog[]>(INITIAL_LOGS);
+  const [logs] = useState<QueryLog[]>(INITIAL_LOGS);
   const [isSaved, setIsSaved] = useState(false);
 
   const handleApplyConfig = async () => {
