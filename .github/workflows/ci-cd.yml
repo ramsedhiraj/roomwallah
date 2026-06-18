@@ -19,7 +19,8 @@ jobs:
   validate-and-test:
     name: Validate and Test
     runs-on: ubuntu-latest
-        services:
+
+    services:
       postgres:
         image: postgres:16
         env:
@@ -33,13 +34,13 @@ jobs:
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Setup Build Environment
         uses: ./.github/actions/setup-env
-
 
       # --- BACKEND VALIDATION ---
       - name: Backend Compile & Static Analysis
@@ -51,7 +52,6 @@ jobs:
         run: |
           cd backend
           ./mvnw test
-
       # --- FRONTEND VALIDATION ---
       - name: Install Frontend Dependencies
         run: |
