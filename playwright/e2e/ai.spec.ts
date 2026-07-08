@@ -91,7 +91,7 @@ test.describe('RoomWallah Phase 11 - AI Features & Analytics E2E Tests', () => {
 
     // Verify results and match score gauges load
     await expect(page.locator('text=Matched Properties')).toBeVisible();
-    await expect(page.locator('text=AI Match Insights')).first().toBeVisible();
+    await expect(page.locator('text=AI Match Insights').first()).toBeVisible();
 
     // Toggle parsed intent & vector schema display
     await page.click('text=View Parsed Intent & Vector Schema');
@@ -182,11 +182,11 @@ test.describe('RoomWallah Phase 11 - AI Features & Analytics E2E Tests', () => {
     // Go to Duplicate Review dashboard
     await page.goto('/admin/duplicates');
     await expect(page.locator('h1')).toContainText('AI Duplicate Detection Review');
-    await expect(page.locator('text=Suspected Duplicate')).toBeVisible();
+    await expect(page.locator('text=Duplicate Detection Queue Active')).toBeVisible();
 
     // Verify duplicate cluster cards side by side
-    await expect(page.locator('text=Candidate A')).toBeVisible();
-    await expect(page.locator('text=Candidate B')).toBeVisible();
+    await expect(page.locator('text=Candidate A (Original / Older)')).toBeVisible();
+    await expect(page.locator('text=Candidate B (Duplicate / Newer)')).toBeVisible();
 
     // Take action: dismiss/whistelist
     await page.click('[data-testid="duplicate-dismiss-btn"]');

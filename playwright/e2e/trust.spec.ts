@@ -33,7 +33,10 @@ test.describe('RoomWallah Phase 7 - Trust & Verification E2E Tests', () => {
             fullName: 'John Owner',
             email: 'owner@roomwallah.com',
             phone: '+919999999999',
-            role: 'OWNER'
+            role: 'OWNER',
+            emailVerified: true,
+            phoneVerified: true,
+            identityVerified: false
           }
         })
       });
@@ -113,76 +116,116 @@ test.describe('RoomWallah Phase 7 - Trust & Verification E2E Tests', () => {
       });
     });
 
-    await mockOwnerLogin(page);
-
-    // Navigate to verify page
-    await page.goto('/trust/verify');
-    await expect(page.locator('h1')).toContainText('Owner Verification Center');
-    
-    // Step 0: Click Continue
-    await page.click('button:has-text("Continue")');
-
-    // Step 1: Select document type and upload ID Document
-    await expect(page.locator('h2:has-text("Provide Government ID")')).toBeVisible();
-    await page.selectOption('select', 'PAN');
-
-    // Mock file upload
-    const fileChooserPromise = page.waitForEvent('filechooser');
-    await page.locator('.border-dashed').click();
-    const fileChooser = await fileChooserPromise;
-    await fileChooser.setFiles({
-      name: 'pan_card.jpg',
-      mimeType: 'image/jpeg',
-      buffer: Buffer.from('mock-pan-image-content')
-    });
-
-    // Check file is selected
-    await expect(page.locator('text=pan_card.jpg')).toBeVisible();
-    await page.click('button:has-text("Next")');
-
-    // Step 2: Upload Selfie
-    await expect(page.locator('h2:has-text("Face Selfie Check")')).toBeVisible();
-
-    const selfieChooserPromise = page.waitForEvent('filechooser');
-    await page.locator('.w-40.h-40').click();
-    const selfieChooser = await selfieChooserPromise;
-    await selfieChooser.setFiles({
-      name: 'selfie.jpg',
-      mimeType: 'image/jpeg',
-      buffer: Buffer.from('mock-selfie-image-content')
-    });
-
-    // Mock submission API call
-    await page.route('**/api/v1/trust/verification', async (route) => {
+    // Mock properties/me to return a draft property
+    await page.route('**/api/v1/properties/me', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
         body: JSON.stringify({
+          data: [
+            {
+              id: 'prop-uuid-mock',
+              title: 'Luxury Apartment',
+              address: { city: 'Mumbai' }
+            }
+          ]
+        })
+      });
+    });
+
+    // Mock Aadhaar verification API
+    await page.route('**/api/v1/verifications/identity', async (route) => {
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify({
           data: {
-            id: 'verification-uuid-9999',
+            id: 'verif-uuid-1234',
             userId: 'owner-uuid-1111',
-            verificationStatus: 'SUBMITTED',
-            verificationLevel: 'LEVEL_2_DOCUMENTS',
-            verificationProvider: 'ROOMWALLAH_TRUST',
-            submittedAt: new Date().toISOString(),
-            approvedAt: null,
-            rejectedAt: null,
-            expiresAt: null,
-            reviewerId: null,
-            rejectionReason: null,
-            version: 1,
-            documents: []
+            provider: 'AADHAAR',
+            requestStatus: 'APPROVED',
+            verifiedName: 'John Owner',
+            confidenceScore: 100.0,
+            submittedAt: new Date().toISOString()
           }
         })
       });
     });
 
-    // Submit form
-    await page.click('button:has-text("Submit Verification")');
+    // Mock final verification submission pipeline
+    await page.route('**/api/v1/verifications/property', async (route) => {
+      await route.fulfill({
+        status: 201,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: {
+            id: 'verification-uuid-9999',
+            propertyId: 'prop-uuid-mock',
+            ownerId: 'owner-uuid-1111',
+            documentUrl: 'http://example.com/deed.pdf',
+            utilityBillUrl: 'http://example.com/bill.pdf',
+            deedNameMatched: true,
+            utilityNameMatched: true,
+            locationMatched: true,
+            confidenceScore: 100.0,
+            approvalStatus: 'APPROVED'
+          }
+        })
+      });
+    });
 
-    // Step 3: Verify Success Summary
-    await expect(page.locator('h2:has-text("Application Submitted!")')).toBeVisible();
-    await expect(page.locator('text=Document Type: PAN')).toBeVisible();
+    await mockOwnerLogin(page);
+
+    // Navigate to verify page
+    await page.goto('/trust/verify');
+    await expect(page.locator('h1')).toContainText('Listing & Owner Verification Wizard');
+    
+    // Step 0: Proceed to Step 2 (Phone)
+    await page.click('button:has-text("Proceed to Step 2")');
+
+    // Step 1: Proceed to Step 3 (Aadhaar eKYC)
+    await page.click('button:has-text("Proceed to Step 3")');
+
+    // Step 2: Fill Aadhaar, consent and verify
+    await expect(page.locator('h2')).toContainText('Aadhaar eKYC Identity Validation');
+    await page.fill('input[placeholder="0000 0000 0000"]', '123456789012');
+    await page.check('input[id="consent"]');
+    await page.click('button:has-text("Verify Identity")');
+
+    // Step 3: Select property and upload deed document
+    await expect(page.locator('h2')).toContainText('Upload Property Ownership Proof');
+    await page.selectOption('select', 'prop-uuid-mock');
+
+    const fileChooserPromise = page.waitForEvent('filechooser');
+    await page.locator('.border-dashed').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles({
+      name: 'deed.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from('mock-deed-content')
+    });
+
+    await expect(page.locator('text=deed.pdf')).toBeVisible();
+    await page.click('button:has-text("Next Step")');
+
+    // Step 4: Upload utility bill
+    await expect(page.locator('h2')).toContainText('Upload Recent Utility Bill');
+
+    const utilityChooserPromise = page.waitForEvent('filechooser');
+    await page.locator('.border-dashed').click();
+    const utilityChooser = await utilityChooserPromise;
+    await utilityChooser.setFiles({
+      name: 'utility.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from('mock-utility-content')
+    });
+
+    await expect(page.locator('text=utility.pdf')).toBeVisible();
+    await page.click('button:has-text("Submit Pipeline")');
+
+    // Step 5: Verification results success summary
+    await expect(page.locator('h2')).toContainText('Verification Approved Automatically!');
+    await expect(page.locator('text=Ownership Deed Name Match:')).toBeVisible();
   });
 
   test('2. Draft autosave and local caching recovery', async ({ page }) => {
@@ -195,20 +238,39 @@ test.describe('RoomWallah Phase 7 - Trust & Verification E2E Tests', () => {
       });
     });
 
+    // Mock properties/me to return a draft property
+    await page.route('**/api/v1/properties/me', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          data: [
+            {
+              id: 'prop-uuid-mock',
+              title: 'Luxury Apartment',
+              address: { city: 'Mumbai' }
+            }
+          ]
+        })
+      });
+    });
+
     await mockOwnerLogin(page);
 
     // Go to wizard
     await page.goto('/trust/verify');
-    await page.click('button:has-text("Continue")');
+    await page.click('button:has-text("Proceed to Step 2")');
+    await page.click('button:has-text("Proceed to Step 3")');
 
-    // Select Passport
-    await page.selectOption('select', 'PASSPORT');
+    // Verify we are on Step 2 (Aadhaar eKYC Identity Validation)
+    await expect(page.locator('h2')).toContainText('Aadhaar eKYC Identity Validation');
 
-    // Reload page to verify local cache recovery
+    // Reload page to verify state recovery from profile refresh
     await page.reload();
 
-    await page.click('button:has-text("Continue")');
-    await expect(page.locator('select')).toHaveValue('PASSPORT');
+    await page.click('button:has-text("Proceed to Step 2")');
+    await page.click('button:has-text("Proceed to Step 3")');
+    await expect(page.locator('h2')).toContainText('Aadhaar eKYC Identity Validation');
   });
 
   test('3. Admin moderation queue details & priority overrides', async ({ page }) => {
