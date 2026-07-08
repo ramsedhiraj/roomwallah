@@ -72,17 +72,23 @@ jobs:
           npm run build
 
       # --- END-TO-END TESTING ---
+      - name: Install Playwright Dependencies
+        working-directory: playwright
+        run: |
+          npm ci
+
       - name: Install Playwright Browsers
+        working-directory: playwright
         run: |
           npx playwright install --with-deps
 
       - name: Run Playwright E2E Tests
+        working-directory: playwright
         run: |
-          # Verify Playwright tests compile and run if present
-          if [ -d "playwright/e2e" ]; then
+          if [ -d "e2e" ]; then
             npx playwright test
           else
-            echo "No Playwright E2E tests directory found, skipping."
+            echo "No Playwright E2E tests found."
           fi
 
       # --- PUBLISH TEST REPORTS ---
