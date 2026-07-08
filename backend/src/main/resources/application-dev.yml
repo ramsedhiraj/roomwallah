@@ -14,4 +14,5 @@ spring:
 logging:
   level:
     com.roomwallah: DEBUG
+    org.springframework.security: TRACE
     org.hibernate.orm.deprecation: ERROR

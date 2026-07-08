@@ -29,3 +29,7 @@ backend/target/
 # React
 frontend/node_modules/
 
+storage/
+backend/login.json
+backend/property.json
+backend/mvn

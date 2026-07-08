@@ -34,7 +34,7 @@ public class PropertyLifecycleServiceImpl implements PropertyLifecycleService {
         }
 
         property.transitionTo(PropertyStatus.PAUSED);
-        Property saved = propertyRepository.save(property);
+        Property saved = propertyRepository.saveAndFlush(property);
 
         eventPublisherPort.publish(PropertyPausedEvent.builder()
             .propertyId(saved.getId())
@@ -62,7 +62,7 @@ public class PropertyLifecycleServiceImpl implements PropertyLifecycleService {
         Instant now = Instant.now();
         property.setArchivedAt(now);
         
-        Property saved = propertyRepository.save(property);
+        Property saved = propertyRepository.saveAndFlush(property);
 
         eventPublisherPort.publish(PropertyArchivedEvent.builder()
             .propertyId(saved.getId())
@@ -87,6 +87,6 @@ public class PropertyLifecycleServiceImpl implements PropertyLifecycleService {
 
         property.setDeleted(true);
         property.setDeletedAt(Instant.now());
-        propertyRepository.save(property);
+        propertyRepository.saveAndFlush(property);
     }
 }

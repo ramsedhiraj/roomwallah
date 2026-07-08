@@ -116,13 +116,13 @@ public class PropertyUpdateServiceImpl implements PropertyUpdateService {
             property.getAmenities().addAll(request.getAmenities());
         }
 
-        Property saved = propertyRepository.save(property);
+        Property saved = propertyRepository.saveAndFlush(property);
 
         eventPublisherPort.publish(PropertyUpdatedEvent.builder()
             .propertyId(saved.getId())
             .listingRef(saved.getListingRef())
             .ownerId(saved.getOwnerId())
-            .updatedAt(Instant.now())
+            .updatedAt(saved.getUpdatedAt())
             .build());
 
         return saved;

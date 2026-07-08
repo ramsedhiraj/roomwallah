@@ -112,13 +112,13 @@ public class PropertyCreationServiceImpl implements PropertyCreationService {
             property.getAmenities().addAll(request.getAmenities());
         }
 
-        Property saved = propertyRepository.save(property);
+        Property saved = propertyRepository.saveAndFlush(property);
 
         eventPublisherPort.publish(PropertyCreatedEvent.builder()
             .propertyId(saved.getId())
             .listingRef(saved.getListingRef())
             .ownerId(saved.getOwnerId())
-            .createdAt(saved.getCreatedAt() != null ? saved.getCreatedAt() : Instant.now())
+            .createdAt(saved.getCreatedAt())
             .build());
 
         return saved;

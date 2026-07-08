@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import { apiClient } from '../services/api';
 import { useAuthStore } from '../store/authStore';
+import { Link } from 'react-router-dom';
 import TrustExplanationDialog from '../components/TrustExplanationDialog';
 
 const profileSchema = zod.object({
@@ -208,7 +209,7 @@ export default function ProfilePage() {
                 </span>
               </div>
               
-              <div className="mt-4 pt-4 border-t border-slate-800">
+              <div className="mt-4 pt-4 border-t border-slate-800 space-y-2">
                 <button
                   type="button"
                   onClick={() => setIsTrustDialogOpen(true)}
@@ -217,6 +218,13 @@ export default function ProfilePage() {
                 >
                   View Trust Score Breakdown
                 </button>
+                <Link
+                  to="/trust/verify"
+                  className="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs font-semibold rounded-lg transition-all text-center block"
+                  id="verify-documents-btn"
+                >
+                  Submit Verification Documents
+                </Link>
               </div>
             </div>
           </div>

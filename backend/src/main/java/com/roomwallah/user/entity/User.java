@@ -77,7 +77,7 @@ public class User extends BaseEntity {
     @Column(name = "identity_verified", nullable = false)
     private boolean identityVerified = false;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private UserPreferences preferences;
 
     @Column(name = "deleted", nullable = false)

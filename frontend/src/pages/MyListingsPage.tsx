@@ -280,13 +280,21 @@ export default function MyListingsPage() {
                     )}
 
                     {prop.status === 'PENDING_VERIFICATION' && (
-                      <button
-                        onClick={() => handleAction(prop.id, 'publish')}
-                        className="px-3 py-1.5 text-xs font-semibold rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors flex items-center gap-1"
-                      >
-                        <CheckCircle className="w-3.5 h-3.5" />
-                        Approve & Publish (Admin)
-                      </button>
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <button
+                          onClick={() => handleAction(prop.id, 'publish')}
+                          className="px-3 py-1.5 text-xs font-semibold rounded bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors flex items-center gap-1"
+                        >
+                          <CheckCircle className="w-3.5 h-3.5" />
+                          Approve & Publish (Admin)
+                        </button>
+                        <Link
+                          to="/trust/verify"
+                          className="px-3 py-1.5 text-xs font-semibold rounded bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 hover:bg-indigo-500/20 transition-colors text-center"
+                        >
+                          Upload Documents
+                        </Link>
+                      </div>
                     )}
 
                     {prop.status === 'ACTIVE' && (

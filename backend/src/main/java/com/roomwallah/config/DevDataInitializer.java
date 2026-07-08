@@ -1,6 +1,7 @@
 package com.roomwallah.config;
 
 import com.roomwallah.user.entity.User;
+import com.roomwallah.user.entity.UserPreferences;
 import com.roomwallah.user.entity.UserRole;
 import com.roomwallah.user.entity.AccountStatus;
 import com.roomwallah.user.repository.UserRepository;
@@ -49,6 +50,17 @@ public class DevDataInitializer implements CommandLineRunner {
                 owner.setEmailVerified(true);
                 owner.setPhoneVerified(true);
                 owner.setIdentityVerified(true);
+
+                UserPreferences preferences = new UserPreferences();
+                preferences.setUser(owner);
+                preferences.setDarkModePreferred(false);
+                preferences.setEmailNotificationsEnabled(true);
+                preferences.setPushNotificationsEnabled(true);
+                preferences.setMarketingNotificationsEnabled(false);
+                preferences.setPreferredLanguage("en");
+                preferences.setPreferredContactMethod("EMAIL");
+                owner.setPreferences(preferences);
+
                 owner = userRepository.save(owner);
                 log.info("Seeded dev owner: owner@roomwallah.com");
             }
@@ -66,6 +78,17 @@ public class DevDataInitializer implements CommandLineRunner {
                 tenant.setEmailVerified(true);
                 tenant.setPhoneVerified(true);
                 tenant.setIdentityVerified(true);
+
+                UserPreferences preferences = new UserPreferences();
+                preferences.setUser(tenant);
+                preferences.setDarkModePreferred(false);
+                preferences.setEmailNotificationsEnabled(true);
+                preferences.setPushNotificationsEnabled(true);
+                preferences.setMarketingNotificationsEnabled(false);
+                preferences.setPreferredLanguage("en");
+                preferences.setPreferredContactMethod("EMAIL");
+                tenant.setPreferences(preferences);
+
                 tenant = userRepository.save(tenant);
                 log.info("Seeded dev tenant: rohan@tenant.com");
             }

@@ -72,6 +72,16 @@ export default function MainLayout() {
                     <span>My Listings</span>
                   </Link>
 
+                  {user?.role === 'ADMIN' && (
+                    <Link 
+                      to="/admin/verification-queue" 
+                      className="flex items-center space-x-2 px-3 py-2 rounded-xl bg-indigo-950/80 border border-indigo-800 hover:border-indigo-700 hover:bg-indigo-900/80 transition-all text-sm font-semibold text-indigo-200"
+                    >
+                      <Shield className="w-4 h-4 text-indigo-400" />
+                      <span>Verification Queue</span>
+                    </Link>
+                  )}
+
                   <NotificationCenter />
 
                   <Link 
@@ -176,6 +186,15 @@ export default function MainLayout() {
                     <div className="w-full text-center py-2 text-xs font-medium text-slate-400">
                       Signed in as {user?.fullName} ({user?.role})
                     </div>
+                    {user?.role === 'ADMIN' && (
+                      <Link
+                        to="/admin/verification-queue"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="block text-center py-2.5 rounded-lg text-sm font-semibold bg-indigo-950/80 border border-indigo-800 text-indigo-400 hover:bg-indigo-900 transition-colors"
+                      >
+                        Verification Queue
+                      </Link>
+                    )}
                     <button
                       onClick={() => {
                         setIsMobileMenuOpen(false);

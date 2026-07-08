@@ -39,7 +39,7 @@ public class PropertyPublicationServiceImpl implements PropertyPublicationServic
         }
 
         property.transitionTo(PropertyStatus.PENDING_VERIFICATION);
-        Property saved = propertyRepository.save(property);
+        Property saved = propertyRepository.saveAndFlush(property);
 
         eventPublisherPort.publish(PropertySubmittedForVerificationEvent.builder()
             .propertyId(saved.getId())
@@ -85,7 +85,7 @@ public class PropertyPublicationServiceImpl implements PropertyPublicationServic
         property.setVerifiedAt(now);
         property.setPublishedAt(now);
         
-        Property saved = propertyRepository.save(property);
+        Property saved = propertyRepository.saveAndFlush(property);
 
         eventPublisherPort.publish(PropertyPublishedEvent.builder()
             .propertyId(saved.getId())
