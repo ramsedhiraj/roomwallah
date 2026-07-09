@@ -33,3 +33,6 @@ storage/
 backend/login.json
 backend/property.json
 backend/mvn
+test-results/
+playwright/test-results/
+playwright/playwright-report/
