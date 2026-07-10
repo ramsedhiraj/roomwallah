@@ -28,6 +28,8 @@ public interface PropertyRepository extends JpaRepository<Property, UUID> {
 
     long countByOwnerIdAndStatusAndDeletedFalse(UUID ownerId, PropertyStatus status);
 
+    long countByOwnerIdAndStatus(UUID ownerId, PropertyStatus status);
+
     boolean existsBySlug(String slug);
 
     @org.springframework.data.jpa.repository.Modifying

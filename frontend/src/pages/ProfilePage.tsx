@@ -4,7 +4,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as zod from 'zod';
 import { apiClient } from '../services/api';
 import { useAuthStore } from '../store/authStore';
-import { Link } from 'react-router-dom';
 import TrustExplanationDialog from '../components/TrustExplanationDialog';
 
 const profileSchema = zod.object({

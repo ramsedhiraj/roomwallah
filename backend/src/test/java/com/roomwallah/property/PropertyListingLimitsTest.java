@@ -33,7 +33,7 @@ public class PropertyListingLimitsTest {
         user.setIdentityVerified(true);
 
         int maxListings = brokerPolicyAdapter.getMaxActiveListings(user);
-        assertEquals(6, maxListings);
+        assertEquals(3, maxListings);
     }
 
     @Test

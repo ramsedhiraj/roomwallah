@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getTrustScoreExplanation, TrustExplanationDto } from '../services/trustService';
-import { Shield, ShieldCheck, ShieldAlert, X, HelpCircle, Loader2 } from 'lucide-react';
+import { Shield, ShieldAlert, X, HelpCircle, Loader2 } from 'lucide-react';
 
 interface TrustExplanationDialogProps {
   isOpen: boolean;

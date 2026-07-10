@@ -13,10 +13,6 @@ public class DefaultBrokerPolicyAdapter implements BrokerPolicyPort {
 
     @Override
     public int getMaxActiveListings(User owner) {
-        // Scalable policy: verified owners get twice the default listing limit
-        if (owner.isIdentityVerified()) {
-            return defaultListingLimit * 2;
-        }
         return defaultListingLimit;
     }
 
