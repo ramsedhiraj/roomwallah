@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Home, ShieldCheck, MapPin } from 'lucide-react';
 import { searchService, PropertyCard } from '../services/searchService';
 import { motion } from 'framer-motion';
+import { WishlistButton } from './WishlistButton';
 
 interface Props {
   currentPropertyId: string;
@@ -140,12 +141,15 @@ export default function SimilarListings({ currentPropertyId, propertyType, city,
                 <span className="text-xs text-slate-600 font-semibold">Listing Image</span>
               )}
               
-              {property.ownerVerified && (
-                <div className="absolute top-2 right-2 flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[9px] font-semibold uppercase tracking-wider">
-                  <ShieldCheck className="w-2.5 h-2.5" />
-                  Verified
-                </div>
-              )}
+              <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
+                {property.ownerVerified && (
+                  <div className="flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 text-[9px] font-semibold uppercase tracking-wider">
+                    <ShieldCheck className="w-2.5 h-2.5" />
+                    Verified
+                  </div>
+                )}
+                <WishlistButton propertyId={property.propertyId} className="!p-1" />
+              </div>
             </div>
 
             <div className="p-4 space-y-2">

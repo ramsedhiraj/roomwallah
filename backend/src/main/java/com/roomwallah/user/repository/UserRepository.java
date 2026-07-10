@@ -20,4 +20,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @EntityGraph(attributePaths = {"preferences"})
     Optional<User> findByPhone(String phone);
+
+    @EntityGraph(attributePaths = {"preferences"})
+    Optional<User> findByProviderAndProviderId(String provider, String providerId);
 }

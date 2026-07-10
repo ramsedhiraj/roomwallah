@@ -113,6 +113,9 @@ public class SearchDocument implements java.io.Serializable {
     @Column(name = "availability_date")
     private java.time.LocalDate availabilityDate;
 
+    @Column(name = "view_count", nullable = false)
+    private int viewCount = 0;
+
     @Transient
     private Map<String, Object> rankingExplanation;
 }

@@ -109,6 +109,8 @@ public class PostgreSqlSearchAdapter implements SearchEnginePort {
         boolean asc = sort != null && sort.isAscending();
         if ("price".equalsIgnoreCase(sortField)) {
             sql.append(" ORDER BY sd.price ").append(asc ? "ASC" : "DESC").append(", sd.property_id ASC");
+        } else if ("viewCount".equalsIgnoreCase(sortField)) {
+            sql.append(" ORDER BY sd.view_count ").append(asc ? "ASC" : "DESC").append(", sd.property_id ASC");
         } else if ("trustScore".equalsIgnoreCase(sortField)) {
             sql.append(" ORDER BY sd.trust_score ").append(asc ? "ASC" : "DESC").append(", sd.property_id ASC");
         } else if ("publishedAt".equalsIgnoreCase(sortField)) {
@@ -327,6 +329,10 @@ public class PostgreSqlSearchAdapter implements SearchEnginePort {
             BigDecimal price = new BigDecimal(cursor.value);
             where.append(String.format(" AND (sd.price %s :cursorPrice OR (sd.price = :cursorPrice AND sd.property_id > :cursorId))", asc ? ">" : "<"));
             params.put("cursorPrice", price);
+        } else if ("viewCount".equalsIgnoreCase(sortField)) {
+            int views = Integer.parseInt(cursor.value);
+            where.append(String.format(" AND (sd.view_count %s :cursorView OR (sd.view_count = :cursorView AND sd.property_id > :cursorId))", asc ? ">" : "<"));
+            params.put("cursorView", views);
         } else if ("trustScore".equalsIgnoreCase(sortField)) {
             int trust = Integer.parseInt(cursor.value);
             where.append(String.format(" AND (sd.trust_score %s :cursorTrust OR (sd.trust_score = :cursorTrust AND sd.property_id > :cursorId))", asc ? ">" : "<"));
@@ -369,6 +375,8 @@ public class PostgreSqlSearchAdapter implements SearchEnginePort {
 
         if ("price".equalsIgnoreCase(sortField)) {
             val = doc.getPrice().toString();
+        } else if ("viewCount".equalsIgnoreCase(sortField)) {
+            val = String.valueOf(doc.getViewCount());
         } else if ("trustScore".equalsIgnoreCase(sortField)) {
             val = String.valueOf(doc.getTrustScore());
         } else if ("publishedAt".equalsIgnoreCase(sortField)) {

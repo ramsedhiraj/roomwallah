@@ -27,10 +27,10 @@ public class User extends BaseEntity {
     @Column(name = "email", nullable = false, unique = true, length = 100)
     private String email;
 
-    @Column(name = "phone", nullable = false, unique = true, length = 20)
+    @Column(name = "phone", length = 20)
     private String phone;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
+    @Column(name = "password_hash", length = 255)
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
@@ -85,4 +85,13 @@ public class User extends BaseEntity {
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
+    @Column(name = "provider", nullable = false, length = 50)
+    private String provider = "LOCAL";
+
+    @Column(name = "provider_id", length = 100)
+    private String providerId;
+
+    @Column(name = "lock_until")
+    private Instant lockUntil;
 }

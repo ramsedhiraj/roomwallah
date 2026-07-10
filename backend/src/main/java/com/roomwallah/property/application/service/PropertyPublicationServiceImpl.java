@@ -9,8 +9,6 @@ import com.roomwallah.property.domain.event.PropertySubmittedForVerificationEven
 import com.roomwallah.property.domain.repository.PropertyRepository;
 import com.roomwallah.user.entity.User;
 import com.roomwallah.user.repository.UserRepository;
-import com.roomwallah.verification.domain.entity.PropertyVerification;
-import com.roomwallah.verification.domain.repository.PropertyVerificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +22,6 @@ public class PropertyPublicationServiceImpl implements PropertyPublicationServic
 
     private final PropertyRepository propertyRepository;
     private final UserRepository userRepository;
-    private final PropertyVerificationRepository propertyVerificationRepository;
     private final EventPublisherPort eventPublisherPort;
 
     @Override
@@ -34,7 +31,7 @@ public class PropertyPublicationServiceImpl implements PropertyPublicationServic
             .filter(p -> !p.isDeleted())
             .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: " + propertyId));
 
-        if (!property.getOwnerId().equals(owner.getId())) {
+        if (!property.getOwnerId().equals(owner.getId()) && owner.getRole() != com.roomwallah.user.entity.UserRole.ADMIN) {
             throw new IllegalArgumentException("User does not own this property");
         }
 
@@ -69,14 +66,7 @@ public class PropertyPublicationServiceImpl implements PropertyPublicationServic
             throw new IllegalStateException("Owner phone number must be verified before listing publication");
         }
         if (!owner.isIdentityVerified()) {
-            throw new IllegalStateException("Owner identity must be verified via Aadhaar eKYC before listing publication");
-        }
-
-        PropertyVerification verification = propertyVerificationRepository.findByPropertyId(propertyId)
-            .orElseThrow(() -> new IllegalStateException("Property has not been verified"));
-
-        if (!"APPROVED".equals(verification.getApprovalStatus())) {
-            throw new IllegalStateException("Property document verification must be approved before listing publication");
+            throw new IllegalStateException("Owner identity must be verified before listing publication");
         }
 
         property.transitionTo(PropertyStatus.ACTIVE);

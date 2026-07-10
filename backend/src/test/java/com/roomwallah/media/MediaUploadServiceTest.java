@@ -12,6 +12,7 @@ import com.roomwallah.media.domain.port.UploadSessionPort;
 import com.roomwallah.media.domain.valueobject.FileChecksum;
 import com.roomwallah.property.domain.entity.Property;
 import com.roomwallah.property.domain.repository.PropertyRepository;
+import com.roomwallah.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -50,6 +51,9 @@ public class MediaUploadServiceTest {
     @Mock
     private UploadSessionPort uploadSessionPort;
 
+    @Mock
+    private UserRepository userRepository;
+
     @InjectMocks
     private MediaUploadServiceImpl mediaUploadService;
 
@@ -67,6 +71,12 @@ public class MediaUploadServiceTest {
         property.setId(propertyId);
         property.setOwnerId(ownerId);
         property.setDeleted(false);
+
+        // Mock default behavior for userRepository
+        com.roomwallah.user.entity.User caller = new com.roomwallah.user.entity.User();
+        caller.setId(ownerId);
+        caller.setRole(com.roomwallah.user.entity.UserRole.OWNER);
+        when(userRepository.findById(ownerId)).thenReturn(Optional.of(caller));
 
         // Default mock behaviors for mediaPolicyPort limits
         when(mediaPolicyPort.getMaxImagesPerProperty()).thenReturn(20);

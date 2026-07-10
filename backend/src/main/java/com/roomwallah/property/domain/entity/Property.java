@@ -170,6 +170,9 @@ public class Property extends BaseEntity {
     @Column(name = "deleted_at")
     private Instant deletedAt;
 
+    @Column(name = "view_count", nullable = false)
+    private int viewCount = 0;
+
     public void transitionTo(PropertyStatus newStatus) {
         if (this.status == null) {
             this.status = PropertyStatus.DRAFT;

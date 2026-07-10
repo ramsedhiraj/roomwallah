@@ -58,8 +58,13 @@ public class CreatePropertyRequest {
     @Valid
     private AreaMeasurementDto area;
 
+    @jakarta.validation.constraints.Min(value = 1, message = "Bedrooms must be at least 1")
     private Integer bedrooms;
+
+    @jakarta.validation.constraints.Min(value = 1, message = "Bathrooms must be at least 1")
     private Integer bathrooms;
+
+    @jakarta.validation.constraints.Min(value = 0, message = "Parking count cannot be negative")
     private int parkingCount;
     private String parkingType;
     private FurnishingStatus furnishingStatus;

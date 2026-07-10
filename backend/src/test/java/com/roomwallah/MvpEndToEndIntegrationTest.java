@@ -15,8 +15,6 @@ import com.roomwallah.user.entity.User;
 import com.roomwallah.booking.presentation.dto.LeadRequestDto;
 import com.roomwallah.user.repository.UserRepository;
 import com.roomwallah.property.domain.repository.PropertyRepository;
-import com.roomwallah.verification.domain.entity.PropertyVerification;
-import com.roomwallah.verification.domain.repository.PropertyVerificationRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -55,9 +53,6 @@ public class MvpEndToEndIntegrationTest {
     @Autowired
     private PropertyRepository propertyRepository;
 
-    @Autowired
-    private PropertyVerificationRepository propertyVerificationRepository;
-
     @Test
     public void executeMvpFlow() throws Exception {
         // 1. Register Owner
@@ -77,6 +72,10 @@ public class MvpEndToEndIntegrationTest {
                 
         String ownerIdStr = JsonPath.read(ownerRegResult.getResponse().getContentAsString(), "$.data.id");
         UUID ownerId = UUID.fromString(ownerIdStr);
+
+        User ownerUser = userRepository.findById(ownerId).orElseThrow();
+        ownerUser.setEmailVerified(true);
+        userRepository.save(ownerUser);
 
         // 2. Login Owner
         LoginRequest ownerLogin = new LoginRequest("owner.e2e@example.com", "Password123!");
@@ -131,6 +130,10 @@ public class MvpEndToEndIntegrationTest {
                 .content(objectMapper.writeValueAsString(adminReg)))
                 .andExpect(status().isOk());
 
+        User adminUser = userRepository.findByEmail("admin.e2e@example.com").orElseThrow();
+        adminUser.setEmailVerified(true);
+        userRepository.save(adminUser);
+
         // Login Admin
         LoginRequest adminLogin = new LoginRequest("admin.e2e@example.com", "Password123!");
         MvcResult adminLoginResult = mockMvc.perform(post("/api/v1/auth/login")
@@ -150,15 +153,6 @@ public class MvpEndToEndIntegrationTest {
         owner.setIdentityVerified(true);
         userRepository.save(owner);
 
-        // Setup: Create a Mock PropertyVerification record
-        PropertyVerification verification = new PropertyVerification();
-        verification.setPropertyId(propertyId);
-        verification.setOwnerId(ownerId);
-        verification.setDocumentUrl("https://test.local/document.pdf");
-        verification.setUtilityBillUrl("https://test.local/utility.pdf");
-        verification.setApprovalStatus("APPROVED");
-        propertyVerificationRepository.save(verification);
-
         mockMvc.perform(post("/api/v1/properties/" + propertyId + "/publish")
                 .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
@@ -177,6 +171,10 @@ public class MvpEndToEndIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(tenantReg)))
                 .andExpect(status().isOk());
+
+        User tenantUser = userRepository.findByEmail("tenant.e2e@example.com").orElseThrow();
+        tenantUser.setEmailVerified(true);
+        userRepository.save(tenantUser);
 
         // Login Tenant
         LoginRequest tenantLogin = new LoginRequest("tenant.e2e@example.com", "Password123!");

@@ -37,6 +37,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         user.setPhone(phone);
         user.setPasswordHash(passwordHash);
         user.setRole(role);
+        user.setProvider("LOCAL");
         user.setDeleted(false);
 
         UserPreferences preferences = new UserPreferences();

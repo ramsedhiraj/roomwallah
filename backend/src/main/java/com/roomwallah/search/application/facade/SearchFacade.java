@@ -3,7 +3,6 @@ package com.roomwallah.search.application.facade;
 import com.roomwallah.search.domain.entity.SavedSearch;
 import com.roomwallah.search.domain.entity.TrendingQuery;
 import com.roomwallah.search.domain.model.SearchQuery;
-import com.roomwallah.search.domain.port.RecommendationEnginePort.RecommendationItem;
 import com.roomwallah.search.domain.port.SearchEnginePort.SearchResult;
 
 import java.time.Instant;
@@ -18,8 +17,6 @@ public interface SearchFacade {
     List<String> autoComplete(String prefix, String city, int limit);
 
     List<TrendingQuery> getTrending(String city, int limit);
-
-    List<RecommendationItem> getRecommendations(UUID userId, int limit);
 
     SavedSearch createSavedSearch(UUID userId, String serializedQuery, boolean notificationEnabled);
 
@@ -36,8 +33,6 @@ public interface SearchFacade {
     Map<String, Object> getIndexHealth();
 
     Map<String, Object> getIndexStats();
-
-    void refreshRecommendationsCache();
 
     void executeMaintenanceTasks();
 

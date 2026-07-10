@@ -27,6 +27,7 @@ import { apiClient } from '../services/api';
 import { Property } from '../types';
 import SimilarListings from '../components/SimilarListings';
 import RecommendedForYou from '../components/RecommendedForYou';
+import { WishlistButton } from '../components/WishlistButton';
 
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -53,6 +54,11 @@ export default function PropertyDetailPage() {
         const res = await apiClient.get(`/properties/${id}`);
         setProperty(res.data.data);
         setError(null);
+        
+        // Fire-and-forget view count increment
+        apiClient.post(`/properties/${id}/view`).catch(err => {
+          console.warn('Failed to increment view count', err);
+        });
       } catch (err: any) {
         console.error(err);
         setError(err.response?.data?.message || 'Failed to fetch property details');
@@ -164,9 +170,12 @@ export default function PropertyDetailPage() {
               )}
             </div>
 
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
-              {property.title}
-            </h1>
+            <div className="flex items-center justify-between gap-4">
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-white">
+                {property.title}
+              </h1>
+              <WishlistButton propertyId={property.id} className="!p-2.5 shadow-lg border border-slate-700/50" />
+            </div>
 
             {property.slug && (
               <div className="text-xs text-indigo-400 font-mono bg-indigo-950/20 border border-indigo-900/30 px-3 py-1.5 rounded-lg inline-block">

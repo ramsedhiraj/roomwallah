@@ -79,8 +79,16 @@ public class OtpService {
 
         // Send OTP
         log.info("Sending OTP for user: {}, type: {}, code: {}", userId, type, otpCode);
-        if ("EMAIL_OTP".equalsIgnoreCase(type)) {
-            notificationSenderPort.sendEmail(target, "RoomWallah Email Verification", "Your verification code is: " + otpCode);
+        if ("EMAIL_OTP".equalsIgnoreCase(type) || "PASSWORD_RESET_OTP".equalsIgnoreCase(type) || "LOGIN_OTP".equalsIgnoreCase(type)) {
+            String subject;
+            if ("PASSWORD_RESET_OTP".equalsIgnoreCase(type)) {
+                subject = "RoomWallah Password Reset";
+            } else if ("LOGIN_OTP".equalsIgnoreCase(type)) {
+                subject = "RoomWallah Login Verification";
+            } else {
+                subject = "RoomWallah Email Verification";
+            }
+            notificationSenderPort.sendEmail(target, subject, "Your verification code is: " + otpCode);
         } else if ("MOBILE_OTP".equalsIgnoreCase(type)) {
             notificationSenderPort.sendSms(target, "RoomWallah Verification Code: " + otpCode);
             // Optionally, also send whatsapp

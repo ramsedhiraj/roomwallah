@@ -4,6 +4,7 @@ import com.roomwallah.booking.application.facade.BookingFacade;
 import com.roomwallah.booking.domain.entity.LeadNote;
 import com.roomwallah.booking.domain.entity.VisitCalendar;
 import com.roomwallah.booking.domain.event.BookingApprovedEvent;
+import com.roomwallah.booking.domain.event.BookingCompletedEvent;
 import com.roomwallah.booking.domain.event.BookingRejectedEvent;
 import com.roomwallah.booking.domain.event.VisitCompletedEvent;
 import com.roomwallah.booking.domain.event.VisitNoShowEvent;
@@ -76,6 +77,14 @@ public class BookingAdminController {
         log.info("Request to reject booking: {} by owner/admin: {} for reason: {}", bookingId, currentUser.getId(), reason);
         BookingResponseDto response = bookingFacade.rejectBooking(currentUser.getId(), bookingId, reason);
         return ResponseEntity.ok(ApiResponse.success(response, "Booking rejected successfully"));
+    }
+
+    @PostMapping("/bookings/{id}/complete")
+    public ResponseEntity<ApiResponse<BookingResponseDto>> completeBooking(@PathVariable("id") UUID bookingId) {
+        User currentUser = currentUserProvider.getCurrentUser();
+        log.info("Request to complete booking: {} by owner/admin: {}", bookingId, currentUser.getId());
+        BookingResponseDto response = bookingFacade.completeBooking(currentUser.getId(), bookingId);
+        return ResponseEntity.ok(ApiResponse.success(response, "Booking completed successfully"));
     }
 
     // 2. CRM Leads Management
@@ -201,6 +210,11 @@ public class BookingAdminController {
     @EventListener
     public void onBookingRejected(BookingRejectedEvent event) {
         broadcastToAdmins("BOOKING_REJECTED", event);
+    }
+
+    @EventListener
+    public void onBookingCompleted(BookingCompletedEvent event) {
+        broadcastToAdmins("BOOKING_COMPLETED", event);
     }
 
     @EventListener

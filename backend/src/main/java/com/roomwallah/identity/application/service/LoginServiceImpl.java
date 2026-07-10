@@ -142,8 +142,13 @@ public class LoginServiceImpl implements LoginService {
                 }
                 if (userOpt.isPresent()) {
                     User user = userOpt.get();
-                    user.setFailedLoginCount(user.getFailedLoginCount() + 1);
+                    int newFailedCount = user.getFailedLoginCount() + 1;
+                    user.setFailedLoginCount(newFailedCount);
                     user.setLastFailedLoginAt(Instant.now(clock));
+                    if (newFailedCount >= 5) {
+                        user.setStatus(com.roomwallah.user.entity.AccountStatus.LOCKED);
+                        user.setLockUntil(Instant.now(clock).plus(15, ChronoUnit.MINUTES));
+                    }
                     userRepository.save(user);
                 }
             });

@@ -6,7 +6,6 @@ import com.roomwallah.search.domain.entity.SavedSearch;
 import com.roomwallah.search.domain.entity.TrendingQuery;
 import com.roomwallah.search.domain.model.SearchQuery;
 import com.roomwallah.search.domain.port.GeoSearchPort;
-import com.roomwallah.search.domain.port.RecommendationEnginePort.RecommendationItem;
 import com.roomwallah.search.domain.port.SearchEnginePort.SearchResult;
 import com.roomwallah.search.domain.repository.SavedSearchRepository;
 import com.roomwallah.search.domain.repository.SearchDocumentRepository;
@@ -34,7 +33,6 @@ public class SearchFacadeImpl implements SearchFacade {
     private final PropertySearchService propertySearchService;
     private final AutoCompleteService autoCompleteService;
     private final TrendingSearchService trendingSearchService;
-    private final RecommendationService recommendationService;
     private final SavedSearchService savedSearchService;
     private final SearchIndexService searchIndexService;
     private final SearchEngineRegistry searchEngineRegistry;
@@ -63,11 +61,6 @@ public class SearchFacadeImpl implements SearchFacade {
     @Override
     public List<TrendingQuery> getTrending(String city, int limit) {
         return trendingSearchService.getTrending(city, limit);
-    }
-
-    @Override
-    public List<RecommendationItem> getRecommendations(UUID userId, int limit) {
-        return recommendationService.getRecommendations(userId, limit);
     }
 
     @Override
@@ -216,17 +209,10 @@ public class SearchFacadeImpl implements SearchFacade {
     }
 
     @Override
-    public void refreshRecommendationsCache() {
-        log.info("Triggered recommendations cache refresh");
-        recommendationService.refreshRecommendationsCache();
-    }
-
-    @Override
     public void executeMaintenanceTasks() {
         log.info("Executing administrative search maintenance tasks");
         try {
             searchIndexService.reconcileDrift();
-            refreshRecommendationsCache();
             log.info("Administrative search maintenance completed successfully");
         } catch (Exception e) {
             log.error("Error executing maintenance tasks: {}", e.getMessage(), e);

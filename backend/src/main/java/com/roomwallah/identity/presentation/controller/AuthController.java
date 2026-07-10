@@ -8,6 +8,10 @@ import com.roomwallah.identity.presentation.dto.LoginRequest;
 import com.roomwallah.identity.presentation.dto.RefreshRequest;
 import com.roomwallah.identity.presentation.dto.RegisterRequest;
 import com.roomwallah.identity.presentation.dto.UserProfileResponse;
+import com.roomwallah.identity.presentation.dto.ForgotPasswordRequest;
+import com.roomwallah.identity.presentation.dto.ResetPasswordRequest;
+import com.roomwallah.identity.presentation.dto.VerifyEmailRequest;
+import com.roomwallah.identity.presentation.dto.LoginOtpRequest;
 import com.roomwallah.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -102,6 +106,38 @@ public class AuthController {
     @Operation(summary = "Get current session risk evaluation details")
     public ApiResponse<com.roomwallah.common.security.SessionRiskEvaluator.RiskEvaluationResult> sessionRisk(HttpServletRequest request) {
         return ApiResponse.success(zeroTrustService.getCurrentSessionRisk(request), "Session risk evaluated successfully");
+    }
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Request a password reset OTP code")
+    public ApiResponse<Void> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        log.info("Received forgot password request for email: {}", request.getEmail());
+        identityFacade.forgotPassword(request.getEmail());
+        return ApiResponse.success(null, "Password reset code sent successfully");
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password using OTP code")
+    public ApiResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        log.info("Received reset password request for email: {}", request.getEmail());
+        identityFacade.resetPassword(request.getEmail(), request.getCode(), request.getNewPassword(), request.getConfirmPassword());
+        return ApiResponse.success(null, "Password reset successfully");
+    }
+
+    @PostMapping("/verify-email")
+    @Operation(summary = "Verify user email using OTP code")
+    public ApiResponse<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
+        log.info("Received email verification request for email: {}", request.getEmail());
+        identityFacade.verifyEmail(request.getEmail(), request.getCode());
+        return ApiResponse.success(null, "Email verified successfully");
+    }
+
+    @PostMapping("/login/otp/request")
+    @Operation(summary = "Request OTP code for logging in")
+    public ApiResponse<Void> requestLoginOtp(@Valid @RequestBody LoginOtpRequest request) {
+        log.info("Received request for login OTP code for email: {}", request.getEmail());
+        identityFacade.requestLoginOtp(request.getEmail());
+        return ApiResponse.success(null, "Login OTP code sent successfully");
     }
 
     private String parseBrowser(String userAgent) {

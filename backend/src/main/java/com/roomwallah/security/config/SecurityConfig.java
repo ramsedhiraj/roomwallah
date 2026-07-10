@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
@@ -28,6 +29,9 @@ public class SecurityConfig {
     private final com.roomwallah.partner.filter.ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
     private final com.roomwallah.security.filter.ZeroTrustFilter zeroTrustFilter;
 
+    @Value("${cors.allowed-origins:http://localhost:5173,http://127.0.0.1:5173}")
+    private List<String> allowedOrigins;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -41,6 +45,10 @@ public class SecurityConfig {
                     "/api/v1/auth/login",
                     "/api/v1/auth/refresh",
                     "/api/v1/auth/session-risk",
+                    "/api/v1/auth/forgot-password",
+                    "/api/v1/auth/reset-password",
+                    "/api/v1/auth/verify-email",
+                    "/api/v1/auth/login/otp/request",
                     "/api/v1/owners/*/public-profile",
                     "/api/v1/media/properties/*",
                     "/api/v1/media/files/**",
@@ -55,6 +63,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/admin/payments/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/admin/trust/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/admin/search/**").hasRole("ADMIN")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/properties/*/publish").hasRole("ADMIN")
                 .requestMatchers("/api/v1/admin/bookings/**").hasAnyRole("ADMIN", "OWNER")
                 .requestMatchers("/api/v1/admin/leads/**").hasAnyRole("ADMIN", "OWNER")
                 .requestMatchers("/api/v1/admin/calendar/**").hasAnyRole("ADMIN", "OWNER")
@@ -62,6 +71,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/partner/**").hasRole("PARTNER")
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/properties/me").authenticated()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/properties/*").permitAll()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/properties/*/view").permitAll()
+                .requestMatchers("/api/v1/wishlist/**").authenticated()
                 .anyRequest().authenticated()
             )
             .exceptionHandling(exceptions -> exceptions
@@ -83,7 +94,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://127.0.0.1:5173"));
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of(
                 "Authorization",

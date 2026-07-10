@@ -8,6 +8,7 @@ import com.roomwallah.booking.domain.entity.BookingStatus;
 import com.roomwallah.booking.domain.event.BookingApprovedEvent;
 import com.roomwallah.booking.domain.event.BookingCancelledEvent;
 import com.roomwallah.booking.domain.event.BookingCreatedEvent;
+import com.roomwallah.booking.domain.event.BookingCompletedEvent;
 import com.roomwallah.booking.domain.event.BookingRejectedEvent;
 import com.roomwallah.booking.domain.repository.BookingHistoryRepository;
 import com.roomwallah.booking.domain.repository.BookingOutboxRepository;
@@ -211,6 +212,39 @@ public class BookingServiceImpl implements BookingService {
                 .cancelledAt(Instant.now())
                 .build();
         saveToOutbox("BookingCancelledEvent", savedBooking.getId(), event);
+
+        return savedBooking;
+    }
+
+    @Override
+    @Transactional
+    public Booking completeBooking(UUID ownerId, UUID bookingId) {
+        log.info("Completing booking ID: {} by owner: {}", bookingId, ownerId);
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new ResourceNotFoundException("Booking not found"));
+
+        if (!booking.getOwnerId().equals(ownerId)) {
+            throw new SecurityException("Unauthorized owner operation");
+        }
+
+        if (booking.getStatus() != BookingStatus.CONFIRMED) {
+            throw new IllegalStateException("Booking must be in CONFIRMED status to be completed");
+        }
+
+        BookingStatus oldStatus = booking.getStatus();
+        booking.setStatus(BookingStatus.COMPLETED);
+        Booking savedBooking = bookingRepository.save(booking);
+
+        recordHistory(savedBooking.getId(), oldStatus, savedBooking.getStatus(), "Booking marked completed by owner");
+
+        BookingCompletedEvent event = BookingCompletedEvent.builder()
+                .bookingId(savedBooking.getId())
+                .propertyId(savedBooking.getPropertyId())
+                .tenantId(savedBooking.getTenantId())
+                .ownerId(savedBooking.getOwnerId())
+                .completedAt(Instant.now())
+                .build();
+        saveToOutbox("BookingCompletedEvent", savedBooking.getId(), event);
 
         return savedBooking;
     }

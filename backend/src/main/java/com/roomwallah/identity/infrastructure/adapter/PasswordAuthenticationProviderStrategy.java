@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.Optional;
 
 @Slf4j
@@ -19,6 +21,7 @@ public class PasswordAuthenticationProviderStrategy implements AuthenticationPro
 
     private final UserRepository userRepository;
     private final PasswordEncoderPort passwordEncoderPort;
+    private final Clock clock;
 
     @Override
     public boolean supports(AuthType type) {
@@ -43,8 +46,15 @@ public class PasswordAuthenticationProviderStrategy implements AuthenticationPro
 
         // Block login attempts if account is LOCKED, DISABLED, or SUSPENDED
         if (user.getStatus() == AccountStatus.LOCKED) {
-            log.warn("Login failure - account is locked for user [{}].", identity);
-            throw new IllegalArgumentException("Account is locked");
+            if (user.getLockUntil() != null && user.getLockUntil().isBefore(Instant.now(clock))) {
+                user.setStatus(AccountStatus.ACTIVE);
+                user.setLockUntil(null);
+                user.setFailedLoginCount(0);
+                userRepository.save(user);
+            } else {
+                log.warn("Login failure - account is locked for user [{}].", identity);
+                throw new IllegalArgumentException("Account is temporarily locked. Please try again later.");
+            }
         }
         if (user.getStatus() == AccountStatus.DISABLED) {
             log.warn("Login failure - account is disabled for user [{}].", identity);
@@ -53,6 +63,11 @@ public class PasswordAuthenticationProviderStrategy implements AuthenticationPro
         if (user.getStatus() == AccountStatus.SUSPENDED) {
             log.warn("Login failure - account is suspended for user [{}].", identity);
             throw new IllegalArgumentException("Account is suspended");
+        }
+
+        if (!user.isEmailVerified()) {
+            log.warn("Login failure - email [{}] is not verified.", identity);
+            throw new IllegalArgumentException("Please verify your email address before logging in.");
         }
 
         if (!passwordEncoderPort.matches(credentials, user.getPasswordHash())) {

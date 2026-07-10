@@ -5,8 +5,8 @@ import com.roomwallah.booking.domain.entity.VisitStatus;
 import com.roomwallah.booking.domain.port.LeadScoringPort;
 import com.roomwallah.booking.domain.repository.PropertyVisitRepository;
 import com.roomwallah.booking.domain.valueobject.LeadScoreExplanation;
-import com.roomwallah.trust.domain.entity.TrustScore;
-import com.roomwallah.trust.domain.port.TrustScoreRepository;
+import com.roomwallah.verification.domain.entity.TrustScore;
+import com.roomwallah.verification.domain.repository.TrustScoreRepository;
 import com.roomwallah.verification.domain.entity.BadgeLevel;
 import com.roomwallah.verification.domain.entity.VerificationBadge;
 import com.roomwallah.verification.domain.repository.VerificationBadgeRepository;
@@ -50,7 +50,7 @@ public class RuleBasedLeadScoringEngine implements LeadScoringPort {
         try {
             Optional<TrustScore> trustScoreOpt = trustScoreRepository.findByUserId(tenantId);
             if (trustScoreOpt.isPresent()) {
-                trustScoreVal = trustScoreOpt.get().getCurrentScore();
+                trustScoreVal = trustScoreOpt.get().getOverallScore();
                 details.add("Found tenant trust score: " + trustScoreVal);
             } else {
                 details.add("No trust score found, using default: 50");

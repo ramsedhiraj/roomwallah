@@ -17,6 +17,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.roomwallah.user.entity.User;
+import com.roomwallah.user.repository.UserRepository;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class MediaOrderingServiceImpl implements MediaOrderingService {
 
     private final PropertyRepository propertyRepository;
     private final PropertyMediaRepository propertyMediaRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
@@ -33,9 +37,7 @@ public class MediaOrderingServiceImpl implements MediaOrderingService {
                 .filter(p -> !p.isDeleted())
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: " + propertyId));
 
-        if (!property.getOwnerId().equals(ownerId)) {
-            throw new IllegalArgumentException("User does not own this property");
-        }
+        checkOwnershipOrAdmin(property, ownerId);
 
         // 2. Fetch all media
         List<PropertyMedia> mediaList = propertyMediaRepository.findByPropertyIdAndDeletedFalseOrderByDisplayOrderAsc(propertyId);
@@ -63,9 +65,7 @@ public class MediaOrderingServiceImpl implements MediaOrderingService {
                 .filter(p -> !p.isDeleted())
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: " + propertyId));
 
-        if (!property.getOwnerId().equals(ownerId)) {
-            throw new IllegalArgumentException("User does not own this property");
-        }
+        checkOwnershipOrAdmin(property, ownerId);
 
         // 2. Load target media
         PropertyMedia target = propertyMediaRepository.findByIdAndDeletedFalse(mediaId)
@@ -135,6 +135,14 @@ public class MediaOrderingServiceImpl implements MediaOrderingService {
             log.info("Successfully finished rebalance of media for property: {}", propertyId);
         } catch (Exception e) {
             log.error("Failed to rebalance media order for property " + propertyId, e);
+        }
+    }
+
+    private void checkOwnershipOrAdmin(Property property, UUID callerId) {
+        User caller = userRepository.findById(callerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + callerId));
+        if (!property.getOwnerId().equals(callerId) && caller.getRole() != com.roomwallah.user.entity.UserRole.ADMIN) {
+            throw new IllegalArgumentException("User does not own this property");
         }
     }
 }

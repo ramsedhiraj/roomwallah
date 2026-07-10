@@ -60,6 +60,12 @@ public class BookingFacadeImpl implements BookingFacade {
     }
 
     @Override
+    public BookingResponseDto completeBooking(UUID ownerId, UUID bookingId) {
+        Booking booking = bookingService.completeBooking(ownerId, bookingId);
+        return mapToBookingResponse(booking);
+    }
+
+    @Override
     public List<BookingResponseDto> getTenantBookings(UUID tenantId) {
         return bookingService.getTenantBookings(tenantId).stream()
                 .map(this::mapToBookingResponse)

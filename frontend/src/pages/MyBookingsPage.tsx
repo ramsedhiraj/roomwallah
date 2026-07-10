@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { bookingService, BookingResponse, PropertyVisitResponse } from '../services/bookingService';
-import { Calendar, Clock, Download, XCircle, AlertCircle, RefreshCw, Layers } from 'lucide-react';
+import { Calendar, Clock, Download, XCircle, AlertCircle, RefreshCw, Layers, MessageSquare } from 'lucide-react';
 
 export default function MyBookingsPage() {
+  const navigate = useNavigate();
   const { pathname } = useLocation();
   const [activeTab, setActiveTab] = useState<'bookings' | 'visits'>(
     pathname.includes('visits') ? 'visits' : 'bookings'
@@ -227,16 +228,25 @@ export default function MyBookingsPage() {
                       <p className="text-[10px] text-muted-foreground">Created on: {formatDate(booking.createdAt)}</p>
                     </div>
 
-                    {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+                    <div className="flex items-center gap-2 w-full md:w-auto">
                       <button
-                        onClick={() => handleCancelBooking(booking.id)}
-                        disabled={cancellingId === booking.id}
-                        className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10 border border-destructive/20 rounded-xl transition-all"
+                        onClick={() => navigate('/chat/' + booking.id)}
+                        className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold border border-border rounded-xl hover:bg-muted transition-all"
                       >
-                        <XCircle className="h-4 w-4" />
-                        Cancel Request
+                        <MessageSquare className="h-4 w-4" />
+                        Chat with Owner
                       </button>
-                    )}
+                      {(booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+                        <button
+                          onClick={() => handleCancelBooking(booking.id)}
+                          disabled={cancellingId === booking.id}
+                          className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2 text-sm font-semibold text-destructive hover:bg-destructive/10 border border-destructive/20 rounded-xl transition-all"
+                        >
+                          <XCircle className="h-4 w-4" />
+                          Cancel Request
+                        </button>
+                      )}
+                    </div>
                   </div>
                 ))
               )}

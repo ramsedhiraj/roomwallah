@@ -29,6 +29,9 @@ public class MediaDeletionServiceTest {
     @Mock
     private EventPublisherPort eventPublisherPort;
 
+    @Mock
+    private com.roomwallah.user.repository.UserRepository userRepository;
+
     @InjectMocks
     private MediaDeletionServiceImpl mediaDeletionService;
 
@@ -46,6 +49,12 @@ public class MediaDeletionServiceTest {
         property.setId(propertyId);
         property.setOwnerId(ownerId);
         property.setDeleted(false);
+
+        // Mock default behavior for userRepository
+        com.roomwallah.user.entity.User caller = new com.roomwallah.user.entity.User();
+        caller.setId(ownerId);
+        caller.setRole(com.roomwallah.user.entity.UserRole.OWNER);
+        when(userRepository.findById(ownerId)).thenReturn(Optional.of(caller));
     }
 
     @Test

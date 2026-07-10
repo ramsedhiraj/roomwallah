@@ -9,7 +9,6 @@ import com.roomwallah.verification.application.facade.VerificationFacade;
 import com.roomwallah.verification.domain.entity.*;
 import com.roomwallah.verification.presentation.dto.*;
 import com.roomwallah.verification.application.service.OtpService;
-import com.roomwallah.verification.application.service.PropertyVerificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -32,7 +31,6 @@ public class VerificationController {
     private final CurrentUserProvider currentUserProvider;
     private final RedisRateLimiter redisRateLimiter;
     private final OtpService otpService;
-    private final PropertyVerificationService propertyVerificationService;
 
     @PostMapping("/api/v1/verifications/identity")
     @ResponseStatus(HttpStatus.CREATED)
@@ -273,98 +271,6 @@ public class VerificationController {
             throw new IllegalArgumentException("Invalid or expired mobile verification code");
         }
         return ApiResponse.success(null, "Mobile phone number verified successfully");
-    }
-
-    @PostMapping("/api/v1/verifications/property")
-    @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Submit property deeds and utility bills for automatic & manual verification")
-    public ApiResponse<PropertyVerificationResponseDto> submitPropertyVerification(
-            @Valid @RequestBody PropertyVerificationRequestDto requestDto
-    ) {
-        log.info("Property verification submission for property: {}", requestDto.getPropertyId());
-        PropertyVerification pv = propertyVerificationService.submitPropertyVerification(
-                requestDto.getPropertyId(),
-                requestDto.getDocumentUrl(),
-                requestDto.getUtilityBillUrl(),
-                requestDto.getOwnerNameOnDeed(),
-                requestDto.getAddressOnUtilityBill(),
-                requestDto.getOwnerNameOnUtilityBill()
-        );
-        return ApiResponse.success(mapToPropertyResponse(pv), "Property verification submitted successfully");
-    }
-
-    @GetMapping("/api/v1/verifications/property/{propertyId}/status")
-    @Operation(summary = "Get verification status of a specific property listing")
-    public ApiResponse<PropertyVerificationResponseDto> getPropertyVerificationStatus(
-            @PathVariable UUID propertyId
-    ) {
-        log.info("Fetching verification status for property: {}", propertyId);
-        PropertyVerification pv = propertyVerificationService.getPropertyVerification(propertyId);
-        if (pv == null) {
-            return ApiResponse.success(null, "No verification details found for this property");
-        }
-        return ApiResponse.success(mapToPropertyResponse(pv), "Property verification status retrieved");
-    }
-
-    @GetMapping("/api/v1/admin/verifications/properties/pending")
-    @Operation(summary = "Get all property verifications pending manual admin review")
-    public ApiResponse<List<PropertyVerificationResponseDto>> getPendingPropertyVerifications() {
-        log.info("Admin fetching pending property verifications");
-        List<PropertyVerification> list = propertyVerificationService.getPendingPropertyVerifications();
-        List<PropertyVerificationResponseDto> dtoList = list.stream()
-                .map(this::mapToPropertyResponse)
-                .collect(Collectors.toList());
-        return ApiResponse.success(dtoList, "Pending property verifications retrieved");
-    }
-
-    @PostMapping("/api/v1/admin/verifications/properties/{verificationId}/approve")
-    @Operation(summary = "Approve a property verification request manually")
-    public ApiResponse<PropertyVerificationResponseDto> approvePropertyVerification(
-            @PathVariable UUID verificationId,
-            @Valid @RequestBody AdminDecisionRequestDto decisionDto
-    ) {
-        log.info("Admin manually approving property verification: {}", verificationId);
-        PropertyVerification pv = propertyVerificationService.approvePropertyVerification(
-                verificationId,
-                decisionDto.getReason()
-        );
-        return ApiResponse.success(mapToPropertyResponse(pv), "Property verification approved successfully");
-    }
-
-    @PostMapping("/api/v1/admin/verifications/properties/{verificationId}/reject")
-    @Operation(summary = "Reject a property verification request manually")
-    public ApiResponse<PropertyVerificationResponseDto> rejectPropertyVerification(
-            @PathVariable UUID verificationId,
-            @Valid @RequestBody AdminDecisionRequestDto decisionDto
-    ) {
-        log.info("Admin manually rejecting property verification: {}", verificationId);
-        PropertyVerification pv = propertyVerificationService.rejectPropertyVerification(
-                verificationId,
-                decisionDto.getReason()
-        );
-        return ApiResponse.success(mapToPropertyResponse(pv), "Property verification rejected");
-    }
-
-    // ==========================================
-    // Mapping Helper Methods
-    // ==========================================
-
-    private PropertyVerificationResponseDto mapToPropertyResponse(PropertyVerification pv) {
-        if (pv == null) return null;
-        return PropertyVerificationResponseDto.builder()
-                .id(pv.getId())
-                .propertyId(pv.getPropertyId())
-                .ownerId(pv.getOwnerId())
-                .documentUrl(pv.getDocumentUrl())
-                .utilityBillUrl(pv.getUtilityBillUrl())
-                .deedNameMatched(pv.isDeedNameMatched())
-                .utilityNameMatched(pv.isUtilityNameMatched())
-                .locationMatched(pv.isLocationMatched())
-                .confidenceScore(pv.getConfidenceScore())
-                .approvalStatus(pv.getApprovalStatus())
-                .rejectionReason(pv.getRejectionReason())
-                .verifiedAt(pv.getVerifiedAt())
-                .build();
     }
 
     private VerificationRequestResponseDto mapToResponse(VerificationRequest request) {

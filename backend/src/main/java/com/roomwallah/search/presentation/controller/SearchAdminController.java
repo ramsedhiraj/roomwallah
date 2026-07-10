@@ -99,20 +99,6 @@ public class SearchAdminController {
         return ApiResponse.success(stats, "Index statistics retrieved successfully");
     }
 
-    @PostMapping("/recommendations/refresh")
-    @Operation(summary = "Evict recommendations cache and force regeneration")
-    public ApiResponse<Map<String, Object>> refreshRecommendations() {
-        String correlationId = MDC.get("correlationId");
-        log.info("Recommendations refresh triggered - correlationId: {}", correlationId);
-
-        searchFacade.refreshRecommendationsCache();
-
-        return ApiResponse.success(
-                Map.of("status", "SUCCESS", "correlationId", correlationId),
-                "Recommendations cache cleared successfully"
-        );
-    }
-
     @PostMapping("/maintenance")
     @Operation(summary = "Run search maintenance tasks (drift reconciliation, recommendation cache evictions)")
     public ApiResponse<Map<String, Object>> executeMaintenance() {

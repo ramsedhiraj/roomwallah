@@ -213,6 +213,11 @@ export const bookingService = {
     return response.data.data;
   },
 
+  completeBooking: async (bookingId: string): Promise<BookingResponse> => {
+    const response = await apiClient.post(`/admin/bookings/${bookingId}/complete`);
+    return response.data.data;
+  },
+
   // SSE Stream Connections
   getTenantStreamUrl: (): string => {
     const baseURL = apiClient.defaults.baseURL || 'http://localhost:8080/api/v1';

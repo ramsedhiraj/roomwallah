@@ -12,6 +12,7 @@ public interface BookingService {
     Booking approveBooking(UUID ownerId, UUID bookingId);
     Booking rejectBooking(UUID ownerId, UUID bookingId, String reason);
     Booking cancelBooking(UUID userId, UUID bookingId);
+    Booking completeBooking(UUID ownerId, UUID bookingId);
     List<Booking> getTenantBookings(UUID tenantId);
     List<Booking> getOwnerBookings(UUID ownerId);
     Optional<Booking> getBooking(UUID id);

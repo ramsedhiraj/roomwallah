@@ -19,6 +19,7 @@ public interface BookingFacade {
     BookingResponseDto approveBooking(UUID ownerId, UUID bookingId);
     BookingResponseDto rejectBooking(UUID ownerId, UUID bookingId, String reason);
     BookingResponseDto cancelBooking(UUID userId, UUID bookingId);
+    BookingResponseDto completeBooking(UUID ownerId, UUID bookingId);
     List<BookingResponseDto> getTenantBookings(UUID tenantId);
     List<BookingResponseDto> getOwnerBookings(UUID ownerId);
     BookingResponseDto getBooking(UUID id);

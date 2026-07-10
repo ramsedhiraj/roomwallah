@@ -1,16 +1,34 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { Menu, X, Shield, ChevronRight, LogOut, User as UserIcon, Settings, Key, Building2 } from 'lucide-react';
+import { Menu, X, Shield, ChevronRight, LogOut, User as UserIcon, Settings, Key, Building2, Search, Heart } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { apiClient } from '../services/api';
 import NotificationCenter from '../components/NotificationCenter';
-import AiPropertyAssistant from '../pages/AiPropertyAssistant';
+import { useWishlistStore } from '../store/wishlistStore';
 
 export default function MainLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { isAuthenticated, user, logout } = useAuthStore();
   const navigate = useNavigate();
+  const [headerSearch, setHeaderSearch] = useState('');
+
+  const handleHeaderSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (headerSearch.trim()) {
+      navigate(`/search?q=${encodeURIComponent(headerSearch.trim())}`);
+      setHeaderSearch('');
+    }
+  };
+
+  const loadWishlist = useWishlistStore((state) => state.load);
+  const wishlistLoaded = useWishlistStore((state) => state.isLoaded);
+
+  useEffect(() => {
+    if (isAuthenticated && !wishlistLoaded) {
+      loadWishlist();
+    }
+  }, [isAuthenticated, wishlistLoaded, loadWishlist]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,6 +78,20 @@ export default function MainLayout() {
               <a href="#faq" className="text-slate-300 hover:text-white transition-colors">FAQ</a>
             </nav>
 
+            {/* Header Search Bar */}
+            <form onSubmit={handleHeaderSearch} className="hidden lg:flex items-center relative max-w-[200px] w-full mx-4">
+              <input
+                type="text"
+                value={headerSearch}
+                onChange={(e) => setHeaderSearch(e.target.value)}
+                placeholder="Search properties..."
+                className="w-full pl-3 pr-8 py-1.5 rounded-xl bg-slate-900/60 border border-slate-800 focus:border-primary text-xs text-white placeholder-slate-500 focus:outline-none transition-all"
+              />
+              <button type="button" onClick={handleHeaderSearch} className="absolute right-2.5 text-slate-400 hover:text-white transition-colors">
+                <Search className="w-3.5 h-3.5" />
+              </button>
+            </form>
+
             {/* Desktop CTA Action buttons */}
             <div className="hidden md:flex items-center space-x-4">
               {isAuthenticated ? (
@@ -72,15 +104,14 @@ export default function MainLayout() {
                     <span>My Listings</span>
                   </Link>
 
-                  {user?.role === 'ADMIN' && (
-                    <Link 
-                      to="/admin/verification-queue" 
-                      className="flex items-center space-x-2 px-3 py-2 rounded-xl bg-indigo-950/80 border border-indigo-800 hover:border-indigo-700 hover:bg-indigo-900/80 transition-all text-sm font-semibold text-indigo-200"
-                    >
-                      <Shield className="w-4 h-4 text-indigo-400" />
-                      <span>Verification Queue</span>
-                    </Link>
-                  )}
+                  <Link 
+                    to="/wishlist" 
+                    className="flex items-center space-x-2 px-3 py-2 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 hover:bg-slate-850/80 transition-all text-sm font-semibold text-slate-200"
+                    title="My Wishlist"
+                  >
+                    <Heart className="w-4 h-4 text-red-500 fill-red-500/20" />
+                    <span>Wishlist</span>
+                  </Link>
 
                   <NotificationCenter />
 
@@ -186,15 +217,20 @@ export default function MainLayout() {
                     <div className="w-full text-center py-2 text-xs font-medium text-slate-400">
                       Signed in as {user?.fullName} ({user?.role})
                     </div>
-                    {user?.role === 'ADMIN' && (
-                      <Link
-                        to="/admin/verification-queue"
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="block text-center py-2.5 rounded-lg text-sm font-semibold bg-indigo-950/80 border border-indigo-800 text-indigo-400 hover:bg-indigo-900 transition-colors"
-                      >
-                        Verification Queue
-                      </Link>
-                    )}
+                    <Link
+                      to="/listings"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full text-center py-2.5 rounded-lg text-sm font-semibold text-slate-350 hover:bg-slate-800 flex items-center justify-center gap-1.5"
+                    >
+                      My Listings
+                    </Link>
+                    <Link
+                      to="/wishlist"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full text-center py-2.5 rounded-lg text-sm font-semibold text-slate-350 hover:bg-slate-800 flex items-center justify-center gap-1.5"
+                    >
+                      Wishlist
+                    </Link>
                     <button
                       onClick={() => {
                         setIsMobileMenuOpen(false);
@@ -280,7 +316,6 @@ export default function MainLayout() {
           </div>
         </div>
       </footer>
-      <AiPropertyAssistant />
     </div>
   );
 }

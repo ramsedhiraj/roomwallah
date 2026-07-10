@@ -218,13 +218,6 @@ export default function ProfilePage() {
                 >
                   View Trust Score Breakdown
                 </button>
-                <Link
-                  to="/trust/verify"
-                  className="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs font-semibold rounded-lg transition-all text-center block"
-                  id="verify-documents-btn"
-                >
-                  Submit Verification Documents
-                </Link>
               </div>
             </div>
           </div>

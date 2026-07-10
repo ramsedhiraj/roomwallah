@@ -16,7 +16,6 @@ import com.roomwallah.search.domain.entity.SearchDocument;
 import com.roomwallah.search.domain.model.SearchFilter;
 import com.roomwallah.search.domain.model.SearchQuery;
 import com.roomwallah.search.domain.port.SearchEnginePort.SearchResult;
-import com.roomwallah.search.domain.port.RecommendationEnginePort.RecommendationItem;
 import com.roomwallah.search.domain.repository.SavedSearchRepository;
 import com.roomwallah.search.domain.repository.SearchDocumentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -182,17 +181,5 @@ public class SearchIntegrationTest {
 
         // Verify it was re-indexed and restored
         assertThat(searchDocumentRepository.count()).isEqualTo(1);
-    }
-
-    @Test
-    public void testPersonalizedRecommendations() {
-        // Index property
-        searchIndexService.indexProperty(activeProperty.getId());
-
-        // Request recommendations for user (will fall back to general active properties sorted by trust score)
-        List<RecommendationItem> recs = searchFacade.getRecommendations(UUID.randomUUID(), 5);
-        assertThat(recs).isNotEmpty();
-        assertThat(recs.get(0).document().getPropertyId()).isEqualTo(activeProperty.getId());
-        assertThat(recs.get(0).reasons()).isNotEmpty();
     }
 }

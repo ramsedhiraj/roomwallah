@@ -50,4 +50,8 @@ public interface SearchDocumentRepository extends JpaRepository<SearchDocument, 
             "AND (:city IS NULL OR sd.city = :city) " +
             "LIMIT :limit", nativeQuery = true)
     List<String> findMatchingLocalities(@Param("prefix") String prefix, @Param("city") String city, @Param("limit") int limit);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE SearchDocument sd SET sd.viewCount = sd.viewCount + 1 WHERE sd.propertyId = :propertyId")
+    void incrementViewCount(@Param("propertyId") UUID propertyId);
 }

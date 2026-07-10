@@ -107,7 +107,7 @@ export default function TrustExplanationDialog({ isOpen, onClose }: TrustExplana
                       className="text-indigo-500 transition-all duration-1000"
                       strokeWidth="10"
                       strokeDasharray={376.8}
-                      strokeDashoffset={376.8 - (376.8 * explanation.currentScore) / 100}
+                      strokeDashoffset={376.8 - (376.8 * explanation.overallScore) / 100}
                       strokeLinecap="round"
                       stroke="currentColor"
                       fill="transparent"
@@ -115,92 +115,91 @@ export default function TrustExplanationDialog({ isOpen, onClose }: TrustExplana
                   </svg>
                   <div className="absolute flex flex-col items-center">
                     <span className="text-4xl font-extrabold font-outfit text-slate-800 dark:text-white">
-                      {explanation.currentScore}
+                      {explanation.overallScore}
                     </span>
                     <span className="text-[10px] uppercase tracking-wider text-slate-400">Trust Rating</span>
                   </div>
                 </div>
 
                 <div className="mt-4 text-center">
-                  <p className="text-xs text-slate-400">
-                    Algorithm Version: {explanation.algorithmVersion} • Rules: {explanation.ruleVersion}
-                  </p>
                   <p className="text-[11px] text-slate-400 mt-0.5">
                     Calculated on: {new Date(explanation.calculatedAt).toLocaleString()}
                   </p>
                 </div>
               </div>
 
-              {/* Factors Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Category Scores Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 
-                {/* Positive Factors */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center space-x-1.5">
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>Positive Factors</span>
-                  </h3>
-                  <div className="space-y-2">
-                    {explanation.positiveFactors && explanation.positiveFactors.length > 0 ? (
-                      explanation.positiveFactors.map((factor, idx) => (
-                        <div
-                          key={idx}
-                          className="p-3 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/30 dark:border-emerald-900/30 rounded-lg flex items-start justify-between"
-                        >
-                          <div>
-                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                              {factor.name}
-                            </p>
-                            <p className="text-xs text-slate-500 mt-0.5">{factor.description}</p>
-                          </div>
-                          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap ml-2">
-                            +{factor.scoreImpact}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-xs text-slate-400 dark:text-slate-500 italic">
-                        No positive trust factors recorded yet. Submit identity verification to begin.
-                      </p>
-                    )}
+                {/* Identity Verification */}
+                <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800 rounded-xl space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Identity Score</span>
+                    <span className="text-sm font-bold text-indigo-500">{explanation.identityScore}/100</span>
+                  </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2">
+                    <div 
+                      className="bg-indigo-500 h-2 rounded-full transition-all duration-500" 
+                      style={{ width: `${explanation.identityScore}%` }}
+                    />
                   </div>
                 </div>
 
-                {/* Negative Factors */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-rose-600 dark:text-rose-400 flex items-center space-x-1.5">
-                    <ShieldAlert className="w-4 h-4" />
-                    <span>Negative Factors</span>
-                  </h3>
-                  <div className="space-y-2">
-                    {explanation.negativeFactors && explanation.negativeFactors.length > 0 ? (
-                      explanation.negativeFactors.map((factor, idx) => (
-                        <div
-                          key={idx}
-                          className="p-3 bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100/30 dark:border-rose-900/30 rounded-lg flex items-start justify-between"
-                        >
-                          <div>
-                            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-                              {factor.name}
-                            </p>
-                            <p className="text-xs text-slate-500 mt-0.5">{factor.description}</p>
-                          </div>
-                          <span className="text-xs font-bold text-rose-600 dark:text-rose-400 whitespace-nowrap ml-2">
-                            -{factor.scoreImpact}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="p-3 bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-900 rounded-lg">
-                        <p className="text-xs text-slate-500 dark:text-slate-400 italic">
-                          No negative flags. Excellent profile health!
-                        </p>
-                      </div>
-                    )}
+                {/* Property Verification */}
+                <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800 rounded-xl space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Property Verification</span>
+                    <span className="text-sm font-bold text-emerald-500">{explanation.propertyScore}/100</span>
+                  </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2">
+                    <div 
+                      className="bg-emerald-500 h-2 rounded-full transition-all duration-500" 
+                      style={{ width: `${explanation.propertyScore}%` }}
+                    />
                   </div>
                 </div>
 
+                {/* Reviews & Feedback */}
+                <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800 rounded-xl space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Reviews & Feedback</span>
+                    <span className="text-sm font-bold text-blue-500">{explanation.reviewScore}/100</span>
+                  </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all duration-500" 
+                      style={{ width: `${explanation.reviewScore}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Platform Activity */}
+                <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-800 rounded-xl space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">Platform Activity</span>
+                    <span className="text-sm font-bold text-violet-500">{explanation.activityScore}/100</span>
+                  </div>
+                  <div className="w-full bg-slate-200 dark:bg-slate-800 rounded-full h-2">
+                    <div 
+                      className="bg-violet-500 h-2 rounded-full transition-all duration-500" 
+                      style={{ width: `${explanation.activityScore}%` }}
+                    />
+                  </div>
+                </div>
               </div>
+
+              {/* Fraud Penalty Banner if exists */}
+              {explanation.fraudPenalty > 0 && (
+                <div className="p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl flex items-start space-x-2.5">
+                  <ShieldAlert className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-sm font-bold text-rose-500">Active Fraud Penalty</h4>
+                    <p className="text-xs text-rose-600 dark:text-rose-450 mt-0.5">
+                      A penalty of -{explanation.fraudPenalty} points has been applied to this profile due to security system flags.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Note */}
               <div className="p-4 bg-slate-50 dark:bg-slate-950/40 border border-slate-100 dark:border-slate-900 rounded-xl flex items-start space-x-2.5">

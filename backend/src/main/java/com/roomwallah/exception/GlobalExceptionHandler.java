@@ -92,6 +92,6 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ApiResponse<Void> handleGenericException(Exception ex) {
         log.error("An unexpected error occurred", ex);
-        return ApiResponse.error("An unexpected error occurred: " + ex.getMessage());
+        return ApiResponse.error("An unexpected error occurred. Please try again later.");
     }
 }

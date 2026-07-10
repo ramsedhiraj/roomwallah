@@ -27,6 +27,9 @@ public class MediaOrderingServiceTest {
     @Mock
     private PropertyMediaRepository propertyMediaRepository;
 
+    @Mock
+    private com.roomwallah.user.repository.UserRepository userRepository;
+
     @InjectMocks
     private MediaOrderingServiceImpl mediaOrderingService;
 
@@ -44,6 +47,12 @@ public class MediaOrderingServiceTest {
         property.setId(propertyId);
         property.setOwnerId(ownerId);
         property.setDeleted(false);
+
+        // Mock default behavior for userRepository
+        com.roomwallah.user.entity.User caller = new com.roomwallah.user.entity.User();
+        caller.setId(ownerId);
+        caller.setRole(com.roomwallah.user.entity.UserRole.OWNER);
+        when(userRepository.findById(ownerId)).thenReturn(Optional.of(caller));
     }
 
     @Test

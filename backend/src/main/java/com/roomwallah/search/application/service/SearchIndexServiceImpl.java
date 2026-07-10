@@ -248,6 +248,7 @@ public class SearchIndexServiceImpl implements SearchIndexService {
         doc.setUpdatedAt(property.getUpdatedAt() != null ? property.getUpdatedAt() : Instant.now());
         doc.setFacingDirection(property.getFacingDirection());
         doc.setAvailabilityDate(property.getAvailabilityDate());
+        doc.setViewCount(property.getViewCount());
 
         // Fetch owner details
         doc.setOwnerVerified(isOwnerVerified(property.getOwnerId()));

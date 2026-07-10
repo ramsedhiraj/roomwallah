@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { MapPin, Bed, Bath, Car, Shield, ShieldCheck, PawPrint, Clock, ImageIcon } from 'lucide-react';
 import type { PropertyCard } from '../services/searchService';
+import { WishlistButton } from './WishlistButton';
 
 interface Props {
   results: PropertyCard[];
@@ -130,10 +131,11 @@ export default function PropertyResultsGrid({ results, loading }: Props) {
                   </span>
                 )}
               </div>
-              <div className="absolute top-3 right-3">
+              <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
                 <span className="px-2 py-0.5 rounded-full bg-slate-900/70 border border-slate-700/50 text-slate-300 text-[10px] font-medium">
                   {property.listingPurpose === 'RENT' ? 'For Rent' : 'For Sale'}
                 </span>
+                <WishlistButton propertyId={property.propertyId} className="!p-1" />
               </div>
               {property.mediaCount > 0 && (
                 <div className="absolute bottom-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900/70 text-slate-400 text-[10px]">

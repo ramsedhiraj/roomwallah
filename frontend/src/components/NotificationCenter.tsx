@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { 
-  Bell, Check, Settings,MessageSquare, 
+  Bell, Check, Settings, MessageSquare, 
   ShieldAlert, Calendar, DollarSign, Wifi, WifiOff 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import { notificationService } from '../services/notificationService';
+import { useAuthStore } from '../store/authStore';
 
 export interface Notification {
   id: string;
@@ -16,51 +18,34 @@ export interface Notification {
   createdAt: string;
 }
 
-const initialNotifications: Notification[] = [
-  {
-    id: 'notif-1',
-    title: 'Booking Confirmed',
-    message: 'Your property visit for #PRP-10492 has been scheduled for tomorrow at 10:00 AM.',
-    category: 'BOOKING',
-    status: 'UNREAD',
-    channel: 'WHATSAPP',
-    createdAt: '2026-06-15T18:40:00Z',
-  },
-  {
-    id: 'notif-2',
-    title: 'Security Alert',
-    message: 'A new login attempt was detected from a Chrome browser on Windows.',
-    category: 'SECURITY',
-    status: 'UNREAD',
-    channel: 'EMAIL',
-    createdAt: '2026-06-15T16:15:00Z',
-  },
-  {
-    id: 'notif-3',
-    title: 'Escrow Released',
-    message: 'Payout of ₹45,000 has been released to owner account.',
-    category: 'PAYMENT',
-    status: 'READ',
-    channel: 'SMS',
-    createdAt: '2026-06-14T12:00:00Z',
-  },
-  {
-    id: 'notif-4',
-    title: 'Trust Document Verified',
-    message: 'Your landlord verification KYC application has been approved!',
-    category: 'TRUST',
-    status: 'READ',
-    channel: 'EMAIL',
-    createdAt: '2026-06-13T09:30:00Z',
-  },
-];
-
 export default function NotificationCenter() {
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [isLive] = useState(true); // Mock SSE state
+  const [isLive, setIsLive] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuthStore();
+
+  const loadNotifications = async () => {
+    if (!isAuthenticated) return;
+    try {
+      const data = await notificationService.getNotifications();
+      const mapped: Notification[] = data.map(n => ({
+        id: n.id,
+        title: n.title,
+        message: n.message,
+        category: n.notificationType as any,
+        status: n.status,
+        channel: 'PUSH',
+        createdAt: n.createdAt
+      }));
+      setNotifications(mapped);
+      setIsLive(true);
+    } catch (err) {
+      console.error('Failed to load notifications:', err);
+      setIsLive(false);
+    }
+  };
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -73,15 +58,63 @@ export default function NotificationCenter() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Poll notifications when authenticated
+  useEffect(() => {
+    let interval: any = null;
+    if (isAuthenticated) {
+      loadNotifications();
+      interval = setInterval(loadNotifications, 10000); // 10s poll
+    } else {
+      setNotifications([]);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isAuthenticated, isOpen]);
+
   const unreadCount = notifications.filter(n => n.status === 'UNREAD').length;
 
-  const markAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, status: 'READ' })));
+  const markAllRead = async () => {
+    const unread = notifications.filter(n => n.status === 'UNREAD');
+    try {
+      await Promise.all(unread.map(n => notificationService.markAsRead(n.id)));
+      setNotifications(prev => prev.map(n => ({ ...n, status: 'READ' })));
+    } catch (err) {
+      console.error('Failed to mark all read:', err);
+    }
   };
 
-  const markAsRead = (id: string, e: React.MouseEvent) => {
+  const markAsRead = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, status: 'READ' } : n));
+    try {
+      await notificationService.markAsRead(id);
+      setNotifications(prev => prev.map(n => n.id === id ? { ...n, status: 'READ' } : n));
+    } catch (err) {
+      console.error('Failed to mark notification as read:', err);
+    }
+  };
+
+  const handleNotificationClick = async (notif: Notification) => {
+    setIsOpen(false);
+    if (notif.status === 'UNREAD') {
+      try {
+        await notificationService.markAsRead(notif.id);
+      } catch (err) {
+        console.error('Failed to mark read on click:', err);
+      }
+    }
+
+    if (notif.category === 'CHAT') {
+      navigate('/chat');
+    } else if (notif.category === 'BOOKING') {
+      if (user?.role === 'OWNER') {
+        navigate('/listings/bookings');
+      } else {
+        navigate('/bookings');
+      }
+    } else {
+      navigate('/notifications');
+    }
   };
 
   const getCategoryIcon = (category: string) => {
@@ -174,10 +207,7 @@ export default function NotificationCenter() {
                     className={`p-4 flex gap-3 cursor-pointer hover:bg-slate-900/40 transition-colors ${
                       notif.status === 'UNREAD' ? 'bg-indigo-950/5 border-l-2 border-l-primary' : ''
                     }`}
-                    onClick={() => {
-                      setIsOpen(false);
-                      navigate('/notifications');
-                    }}
+                    onClick={() => handleNotificationClick(notif)}
                   >
                     <div className="p-2 bg-slate-900 border border-slate-800 rounded-xl shrink-0 h-fit mt-0.5">
                       {getCategoryIcon(notif.category)}

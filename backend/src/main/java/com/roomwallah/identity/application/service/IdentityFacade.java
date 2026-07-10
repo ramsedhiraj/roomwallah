@@ -12,4 +12,8 @@ public interface IdentityFacade {
     AuthResponse refresh(String refreshToken);
     void logout(String refreshToken);
     UserProfileResponse getProfile();
+    void forgotPassword(String email);
+    void resetPassword(String email, String code, String newPassword, String confirmPassword);
+    void verifyEmail(String email, String code);
+    void requestLoginOtp(String email);
 }

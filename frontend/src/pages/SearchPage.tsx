@@ -971,6 +971,7 @@ export default function SearchPage() {
                     <option value="price_asc" className="bg-slate-900">Price: Low to High</option>
                     <option value="price_desc" className="bg-slate-900">Price: High to Low</option>
                     <option value="trustScore_desc" className="bg-slate-900">Highest Trust Score</option>
+                    <option value="viewCount_desc" className="bg-slate-900">Most Viewed</option>
                     <option value="relevance_desc" className="bg-slate-900">Best Match / Relevance</option>
                   </select>
                 </div>

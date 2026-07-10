@@ -14,6 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.UUID;
 
+import com.roomwallah.user.entity.User;
+import com.roomwallah.user.repository.UserRepository;
+
 @Service
 @RequiredArgsConstructor
 public class MediaDeletionServiceImpl implements MediaDeletionService {
@@ -21,6 +24,7 @@ public class MediaDeletionServiceImpl implements MediaDeletionService {
     private final PropertyRepository propertyRepository;
     private final PropertyMediaRepository propertyMediaRepository;
     private final EventPublisherPort eventPublisherPort;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional
@@ -34,7 +38,9 @@ public class MediaDeletionServiceImpl implements MediaDeletionService {
                 .filter(p -> !p.isDeleted())
                 .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: " + media.getPropertyId()));
 
-        if (!property.getOwnerId().equals(ownerId)) {
+        User caller = userRepository.findById(ownerId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with ID: " + ownerId));
+        if (!property.getOwnerId().equals(ownerId) && caller.getRole() != com.roomwallah.user.entity.UserRole.ADMIN) {
             throw new IllegalArgumentException("User does not own this property");
         }
 

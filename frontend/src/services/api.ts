@@ -52,6 +52,12 @@ apiClient.interceptors.response.use(
           return Promise.reject(error);
         }
 
+        const token = useAuthStore.getState().accessToken;
+        const isMockToken = token === 'tenant_access_token' || token === 'owner_access_token' || token?.startsWith('mock_');
+        if (isMockToken) {
+          return Promise.reject(error);
+        }
+
         if (isRefreshing) {
           return new Promise((resolve, reject) => {
             failedQueue.push({ resolve, reject });

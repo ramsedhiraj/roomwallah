@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bookingService, BookingResponse } from '../services/bookingService';
-import { Check, X, Calendar, Users, Layers, AlertCircle, RefreshCw, Loader2 } from 'lucide-react';
+import { Check, X, Calendar, Users, Layers, AlertCircle, RefreshCw, Loader2, MessageSquare } from 'lucide-react';
 
 export default function OwnerBookingDashboard() {
   const navigate = useNavigate();
@@ -62,6 +62,19 @@ export default function OwnerBookingDashboard() {
       await fetchData();
     } catch (err: any) {
       alert(err.response?.data?.message || 'Failed to approve booking request.');
+    } finally {
+      setActioningId(null);
+    }
+  };
+
+  const handleComplete = async (id: string) => {
+    if (!window.confirm('Are you sure you want to mark this booking as completed?')) return;
+    setActioningId(id);
+    try {
+      await bookingService.completeBooking(id);
+      await fetchData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to complete booking.');
     } finally {
       setActioningId(null);
     }
@@ -189,6 +202,13 @@ export default function OwnerBookingDashboard() {
 
                       <div className="flex items-center gap-2 w-full sm:w-auto">
                         <button
+                          onClick={() => navigate('/chat/' + booking.id)}
+                          className="flex items-center justify-center p-2.5 border border-border rounded-xl hover:bg-card transition-all"
+                          title="Chat with tenant"
+                        >
+                          <MessageSquare className="h-4 w-4 text-slate-400" />
+                        </button>
+                        <button
                           onClick={() => handleApprove(booking.id)}
                           disabled={actioningId === booking.id}
                           className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 bg-success text-success-foreground text-xs font-bold rounded-xl hover:bg-success/90 transition-all"
@@ -223,11 +243,31 @@ export default function OwnerBookingDashboard() {
                         <div className="font-semibold text-sm">Proposal: {booking.id.substring(0, 8)}</div>
                         <p className="text-xs text-muted-foreground">Rent: ₹{booking.priceAmount.toLocaleString()} | Date: {formatDate(booking.createdAt)}</p>
                       </div>
-                      <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
-                        booking.status === 'CONFIRMED' ? 'bg-success/15 text-success' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {booking.status}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => navigate('/chat/' + booking.id)}
+                          className="p-2 border border-border rounded-xl hover:bg-card transition-all"
+                          title="Chat with tenant"
+                        >
+                          <MessageSquare className="h-3.5 w-3.5 text-slate-400" />
+                        </button>
+                        {booking.status === 'CONFIRMED' && (
+                          <button
+                            onClick={() => handleComplete(booking.id)}
+                            disabled={actioningId === booking.id}
+                            className="px-3 py-1 bg-success text-success-foreground text-xs font-bold rounded-xl hover:bg-success/90 transition-all flex items-center gap-1"
+                          >
+                            {actioningId === booking.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                            Complete
+                          </button>
+                        )}
+                        <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full ${
+                          booking.status === 'CONFIRMED' ? 'bg-success/15 text-success' :
+                          booking.status === 'COMPLETED' ? 'bg-indigo-500/15 text-indigo-400' : 'bg-muted text-muted-foreground'
+                        }`}>
+                          {booking.status}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>

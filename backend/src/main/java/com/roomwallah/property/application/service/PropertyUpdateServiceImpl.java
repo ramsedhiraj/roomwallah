@@ -34,7 +34,7 @@ public class PropertyUpdateServiceImpl implements PropertyUpdateService {
             .filter(p -> !p.isDeleted())
             .orElseThrow(() -> new ResourceNotFoundException("Property not found with ID: " + propertyId));
 
-        if (!property.getOwnerId().equals(owner.getId())) {
+        if (!property.getOwnerId().equals(owner.getId()) && owner.getRole() != com.roomwallah.user.entity.UserRole.ADMIN) {
             throw new IllegalArgumentException("User does not own this property");
         }
 

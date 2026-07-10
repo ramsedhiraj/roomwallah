@@ -3,6 +3,7 @@ package com.roomwallah.booking.presentation.controller;
 import com.roomwallah.booking.application.facade.BookingFacade;
 import com.roomwallah.booking.domain.event.BookingCancelledEvent;
 import com.roomwallah.booking.domain.event.BookingCreatedEvent;
+import com.roomwallah.booking.domain.event.BookingCompletedEvent;
 import com.roomwallah.booking.domain.event.VisitCancelledEvent;
 import com.roomwallah.booking.domain.event.VisitScheduledEvent;
 import com.roomwallah.booking.presentation.dto.BookingRequestDto;
@@ -146,6 +147,11 @@ public class BookingController {
     @EventListener
     public void onBookingCancelled(BookingCancelledEvent event) {
         broadcastToTenants("BOOKING_CANCELLED", event);
+    }
+
+    @EventListener
+    public void onBookingCompleted(BookingCompletedEvent event) {
+        broadcastToTenants("BOOKING_COMPLETED", event);
     }
 
     @EventListener
