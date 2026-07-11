@@ -21,7 +21,7 @@ public class LocalStorageAdapter implements MediaStoragePort {
     @Value("${roomwallah.media.cdn-prefix:}")
     private String cdnPrefix;
 
-    public LocalStorageAdapter(@Value("${roomwallah.media.storage-path:C:/Users/hp/.gemini/antigravity/scratch/roomwallah/storage/}") String storagePath) {
+    public LocalStorageAdapter(@Value("${storage.location:storage}") String storagePath) {
         this.rootPath = Paths.get(storagePath);
     }
 
