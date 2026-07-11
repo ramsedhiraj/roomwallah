@@ -252,7 +252,7 @@ export default function BookVisitPage() {
               <div className="border border-border bg-card rounded-2xl overflow-hidden shadow-sm sticky top-6">
                 {property.mediaKeys && property.mediaKeys.length > 0 ? (
                   <img
-                    src={`http://localhost:8080/api/v1/media/files/${property.mediaKeys[0]}`}
+                    src={`${apiClient.defaults.baseURL}/media/files/${property.mediaKeys[0]}`}
                     alt={property.title}
                     className="w-full h-48 object-cover"
                   />
