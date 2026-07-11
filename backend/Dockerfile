@@ -17,6 +17,9 @@ RUN addgroup -S spring && adduser -S spring -G spring
 # Copy jar from build stage and assign owner permissions
 COPY --from=build --chown=spring:spring /app/target/backend-1.0.0.jar app.jar
 
+# Create storage directory and assign owner permissions to spring user
+RUN mkdir -p /app/storage && chown -R spring:spring /app/storage
+
 # Expose server port
 EXPOSE 8080
 
