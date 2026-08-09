@@ -15,7 +15,7 @@ import {
   Copy,
   Check
 } from 'lucide-react';
-import { apiClient } from '../services/api';
+import { apiClient, API_URL } from '../services/api';
 import { Property, PropertyMedia, MediaType } from '../types';
 
 interface UploadQueueItem {
@@ -41,8 +41,6 @@ export default function PropertyMediaManagerPage() {
   const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedMediaType, setSelectedMediaType] = useState<MediaType>('IMAGE');
-
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
 
   const getFullFileUrl = (relativeUrl: string) => {
     const cleanUrl = relativeUrl.startsWith('/api/v1') 
