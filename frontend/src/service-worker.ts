@@ -1,40 +1,29 @@
 // Service worker for RoomWallah PWA
-const CACHE_NAME = 'roomwallah-cache-v1';
-const DATA_CACHE_NAME = 'roomwallah-data-cache-v1';
+const CACHE_NAME = 'roomwallah-cache-v3';
+const DATA_CACHE_NAME = 'roomwallah-data-cache-v3';
 
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json',
-  '/favicon.ico',
-  '/icons/icon-72x72.png',
-  '/icons/icon-96x96.png',
-  '/icons/icon-128x128.png',
-  '/icons/icon-144x144.png',
-  '/icons/icon-152x152.png',
-  '/icons/icon-192x192.png',
-  '/icons/icon-384x384.png',
-  '/icons/icon-512x512.png'
+  '/manifest.json'
 ];
 
-// Install Event
 self.addEventListener('install', (event: any) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Precaching static assets...');
+      console.log('Precaching static assets for RoomWallah v3...');
       return cache.addAll(PRECACHE_ASSETS);
     }).then(() => (self as any).skipWaiting())
   );
 });
 
-// Activate Event
 self.addEventListener('activate', (event: any) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cache) => {
           if (cache !== CACHE_NAME && cache !== DATA_CACHE_NAME) {
-            console.log('Clearing old cache:', cache);
+            console.log('Purging legacy cache:', cache);
             return caches.delete(cache);
           }
           return Promise.resolve(true);
@@ -44,29 +33,50 @@ self.addEventListener('activate', (event: any) => {
   );
 });
 
-// Fetch Event
 self.addEventListener('fetch', (event: any) => {
   const requestUrl = new URL(event.request.url);
 
-  // Stale-While-Revalidate for Search and Autocomplete API calls
+  // Bypass cache completely for non-GET requests (POST, PUT, DELETE, PATCH)
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
+  // Network-First for navigation (HTML page) requests so deployments take effect immediately
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          if (networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put('/index.html', responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match('/index.html').then((cachedResponse) => {
+            return cachedResponse || new Response('Offline', { status: 503, statusText: 'Service Unavailable' });
+          });
+        })
+    );
+    return;
+  }
+
+  // API Search Stale-While-Revalidate
   if (requestUrl.pathname.includes('/api/v1/search')) {
     event.respondWith(
       caches.open(DATA_CACHE_NAME).then((cache) => {
         return fetch(event.request)
           .then((response) => {
-            // If response is valid, clone it and save to cache
             if (response.status === 200) {
               cache.put(event.request.url, response.clone());
             }
             return response;
           })
           .catch(() => {
-            // If network fails, try getting from cache
             return cache.match(event.request.url).then((cachedResponse) => {
               if (cachedResponse) {
                 return cachedResponse;
               }
-              // Return a fallback JSON response if offline and not cached
               return new Response(
                 JSON.stringify({
                   success: false,
@@ -75,7 +85,7 @@ self.addEventListener('fetch', (event: any) => {
                 }),
                 {
                   headers: { 'Content-Type': 'application/json' },
-                  status: 200 // Serve with 200 so frontend maps empty list gracefully
+                  status: 200
                 }
               );
             });
@@ -85,11 +95,10 @@ self.addEventListener('fetch', (event: any) => {
     return;
   }
 
-  // Stale-While-Revalidate for general assets and UI static files
+  // General Static Assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {
-        // Fetch fresh version in background and update cache
         fetch(event.request)
           .then((networkResponse) => {
             if (networkResponse.status === 200) {
@@ -98,14 +107,11 @@ self.addEventListener('fetch', (event: any) => {
               });
             }
           })
-          .catch(() => {
-            // Silently fail if background fetch fails
-          });
+          .catch(() => {});
         return cachedResponse;
       }
 
       return fetch(event.request).then((response) => {
-        // Cache dynamic assets on-the-fly (e.g. images, stylesheets)
         if (
           response.status === 200 &&
           (event.request.destination === 'image' ||
