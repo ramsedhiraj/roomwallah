@@ -47,70 +47,82 @@ apiClient.interceptors.request.use(
 
 // Response Interceptor: Catch 401 and rotate refresh tokens
 apiClient.interceptors.response.use(
-      (response) => {
-        return response;
-      },
-      async (error) => {
-        const originalRequest = error.config;
-        
-        // Return error if not a 401 or request has already been retried
-        if (error.response?.status !== 401 || originalRequest._retry) {
-          return Promise.reject(error);
-        }
+  (response) => {
+    return response;
+  },
+  async (error) => {
+    const originalRequest = error.config;
+    
+    // Return error if not a 401 or request has already been retried
+    if (error.response?.status !== 401 || originalRequest._retry) {
+      return Promise.reject(error);
+    }
 
-        const token = useAuthStore.getState().accessToken;
-        const isMockToken = token === 'tenant_access_token' || token === 'owner_access_token' || token?.startsWith('mock_');
-        if (isMockToken) {
-          return Promise.reject(error);
-        }
+    const token = useAuthStore.getState().accessToken;
+    const isMockToken = token === 'tenant_access_token' || token === 'owner_access_token' || token?.startsWith('mock_');
+    if (isMockToken) {
+      return Promise.reject(error);
+    }
 
-        if (isRefreshing) {
-          return new Promise((resolve, reject) => {
-            failedQueue.push({ resolve, reject });
-          })
-            .then((token) => {
-              originalRequest.headers.Authorization = `Bearer ${token}`;
-              return apiClient(originalRequest);
-            })
-            .catch((err) => {
-              return Promise.reject(err);
-            });
-        }
-
-        originalRequest._retry = true;
-        isRefreshing = true;
-
-        const rawRefreshToken = localStorage.getItem('refreshToken');
-        if (!rawRefreshToken) {
-          useAuthStore.getState().logout();
-          window.location.href = '/login';
-          return Promise.reject(error);
-        }
-
-        try {
-          // Trigger token rotation refresh
-          const response = await axios.post(`${API_URL}/auth/refresh`, {
-            refreshToken: rawRefreshToken,
-          });
-
-          const { accessToken, refreshToken } = response.data.data;
-
-          // Save new tokens
-          useAuthStore.getState().setToken(accessToken);
-          localStorage.setItem('refreshToken', refreshToken);
-
-          processQueue(null, accessToken);
-          isRefreshing = false;
-
-          // Retry the original request
-          originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+    if (isRefreshing) {
+      return new Promise((resolve, reject) => {
+        failedQueue.push({ resolve, reject });
+      })
+        .then((token) => {
+          originalRequest.headers.Authorization = `Bearer ${token}`;
           return apiClient(originalRequest);
-        } catch (refreshError) {
-          processQueue(refreshError, null);
-          isRefreshing = false;
-          useAuthStore.getState().logout();
-          window.location.href = '/login';
-          return Promise.reject(refreshError);
-        }
+        })
+        .catch((err) => {
+          return Promise.reject(err);
+        });
+    }
+
+    originalRequest._retry = true;
+    isRefreshing = true;
+
+    // Utility helper to check if the current page is public
+    const isPublicRoute = (): boolean => {
+      const publicPaths = ['/', '/login', '/register', '/search', '/status'];
+      const path = window.location.pathname;
+      return publicPaths.includes(path) || path.startsWith('/properties/') || path.startsWith('/owners/');
+    };
+
+    const rawRefreshToken = localStorage.getItem('refreshToken');
+    if (!rawRefreshToken) {
+      useAuthStore.getState().logout();
+      isRefreshing = false;
+      if (!isPublicRoute()) {
+        window.location.href = '/login';
       }
+      return Promise.reject(error);
+    }
+
+    try {
+      // Trigger token rotation refresh
+      const response = await axios.post(`${API_URL}/auth/refresh`, {
+        refreshToken: rawRefreshToken,
+      });
+
+      const { accessToken, refreshToken } = response.data.data;
+
+      // Save new tokens
+      useAuthStore.getState().setToken(accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+
+      processQueue(null, accessToken);
+      isRefreshing = false;
+
+      // Retry the original request
+      originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+      return apiClient(originalRequest);
+    } catch (refreshError) {
+      processQueue(refreshError, null);
+      isRefreshing = false;
+      useAuthStore.getState().logout();
+      if (!isPublicRoute()) {
+        window.location.href = '/login';
+      }
+      return Promise.reject(refreshError);
+    }
+  }
 );

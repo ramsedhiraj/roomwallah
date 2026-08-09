@@ -12,24 +12,30 @@ function formatPrice(price: number): string {
 }
 
 export default function RecommendedForYou() {
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const [recommendations, setRecommendations] = useState<RecommendationItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchRecs() {
+      if (!isAuthenticated) {
+        setRecommendations([]);
+        setLoading(false);
+        return;
+      }
       try {
         setLoading(true);
         const data = await searchService.getRecommendations(8);
         setRecommendations(data || []);
       } catch (err) {
         console.error('Failed to load recommended properties', err);
+        setRecommendations([]);
       } finally {
         setLoading(false);
       }
     }
     fetchRecs();
-  }, [user]);
+  }, [user, isAuthenticated]);
 
   const scroll = (direction: 'left' | 'right') => {
     const container = document.getElementById('recommended-container');

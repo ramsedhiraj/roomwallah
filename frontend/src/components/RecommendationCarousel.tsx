@@ -3,6 +3,8 @@ import { ChevronLeft, ChevronRight, ShieldCheck, Sparkles, MapPin } from 'lucide
 import { searchService } from '../services/searchService';
 import type { RecommendationItem } from '../services/searchService';
 
+import { useAuthStore } from '../store/authStore';
+
 interface Props {
   userId?: string;
 }
@@ -14,23 +16,30 @@ function formatPrice(price: number): string {
 }
 
 export default function RecommendationCarousel({ userId }: Props) {
+  const { isAuthenticated } = useAuthStore();
   const [recommendations, setRecommendations] = useState<RecommendationItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     async function fetchRecommendations() {
+      if (!isAuthenticated) {
+        setRecommendations([]);
+        setLoading(false);
+        return;
+      }
       try {
         setLoading(true);
         const data = await searchService.getRecommendations(10);
-        setRecommendations(data);
+        setRecommendations(data || []);
       } catch (err) {
         console.error('Failed to load recommendations', err);
+        setRecommendations([]);
       } finally {
         setLoading(false);
       }
     }
     fetchRecommendations();
-  }, [userId]);
+  }, [userId, isAuthenticated]);
 
   const scroll = (direction: 'left' | 'right') => {
     const container = document.getElementById('recommendations-container');
