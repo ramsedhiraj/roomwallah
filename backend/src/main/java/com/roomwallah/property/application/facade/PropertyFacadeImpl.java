@@ -8,6 +8,7 @@ import com.roomwallah.property.application.service.PropertyLifecycleService;
 import com.roomwallah.property.application.service.PropertyPublicationService;
 import com.roomwallah.property.application.service.PropertyUpdateService;
 import com.roomwallah.property.domain.entity.Property;
+import com.roomwallah.property.domain.entity.PropertyStatus;
 import com.roomwallah.property.domain.repository.PropertyRepository;
 import com.roomwallah.property.presentation.dto.AddressDto;
 import com.roomwallah.property.presentation.dto.AreaMeasurementDto;
@@ -67,6 +68,14 @@ public class PropertyFacadeImpl implements PropertyFacade {
         User owner = currentUserProvider.getCurrentUser();
         List<Property> properties = ownerPropertyService.getOwnerProperties(owner);
         return properties.stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PropertyResponse> getPublishedProperties() {
+        return propertyRepository.findAll().stream()
+                .filter(p -> !p.isDeleted() && p.getStatus() == PropertyStatus.ACTIVE)
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
     }
 
     @Override

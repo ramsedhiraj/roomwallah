@@ -61,6 +61,14 @@ public class PropertyController {
         return ApiResponse.success(response, "Property retrieved successfully");
     }
 
+    @GetMapping
+    @Operation(summary = "Get all public active property listings")
+    public ApiResponse<List<PropertyResponse>> getPublicProperties() {
+        log.info("Received request to fetch public property listings");
+        List<PropertyResponse> response = propertyFacade.getPublishedProperties();
+        return ApiResponse.success(response, "Properties retrieved successfully");
+    }
+
     @GetMapping("/me")
     @Operation(summary = "Get property listings of the current authenticated user")
     public ApiResponse<List<PropertyResponse>> getMyProperties() {

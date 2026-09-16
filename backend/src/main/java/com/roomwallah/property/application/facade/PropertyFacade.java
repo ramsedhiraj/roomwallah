@@ -12,6 +12,7 @@ public interface PropertyFacade {
     PropertyResponse updateProperty(UUID propertyId, UpdatePropertyRequest request);
     PropertyResponse getPropertyById(UUID propertyId);
     List<PropertyResponse> getMyProperties();
+    List<PropertyResponse> getPublishedProperties();
     PropertyResponse submitForVerification(UUID propertyId);
     PropertyResponse approveAndPublish(UUID propertyId);
     PropertyResponse pauseListing(UUID propertyId);
