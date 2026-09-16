@@ -65,14 +65,14 @@ public class PasswordAuthenticationProviderStrategy implements AuthenticationPro
             throw new IllegalArgumentException("Account is suspended");
         }
 
-        if (!user.isEmailVerified()) {
-            log.warn("Login failure - email [{}] is not verified.", identity);
-            throw new IllegalArgumentException("Please verify your email address before logging in.");
-        }
-
         if (!passwordEncoderPort.matches(credentials, user.getPasswordHash())) {
             log.warn("Login failure - password mismatch for user [{}].", identity);
             throw new IllegalArgumentException("Invalid email/phone or password");
+        }
+
+        if (!user.isEmailVerified()) {
+            log.warn("Login failure - email [{}] is not verified.", identity);
+            throw new IllegalArgumentException("Please verify your email address before logging in.");
         }
 
         return user;

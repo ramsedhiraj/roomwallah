@@ -21,11 +21,11 @@ COPY --from=build --chown=spring:spring /app/target/backend-1.0.0.jar app.jar
 RUN mkdir -p /app/storage && chown -R spring:spring /app/storage
 
 # Expose server port
-EXPOSE 8080
+EXPOSE 10000
 
-# Configure wget-based actuator healthcheck
+# Configure wget-based actuator healthcheck checking dynamic PORT
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD wget -q --spider http://localhost:8080/actuator/health || exit 1
+  CMD sh -c 'wget -q --spider http://localhost:${PORT:-10000}/actuator/health || exit 1'
 
 # Drop root privileges and switch user context
 USER spring:spring

@@ -36,13 +36,19 @@ export const useAuthStore = create<AuthState>()(
       setAuthenticated: (isAuthenticated) => set({ isAuthenticated }),
       setLoading: (isLoading) => set({ isLoading }),
       logout: () => {
-        localStorage.removeItem('refreshToken');
-        set({ accessToken: null, user: null, isAuthenticated: false });
+        try {
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('roomwallah-auth');
+          sessionStorage.removeItem('roomwallah-auth');
+        } catch {
+          // ignore storage errors
+        }
+        set({ accessToken: null, user: null, isAuthenticated: false, isLoading: false });
       },
     }),
     {
       name: 'roomwallah-auth',
-      storage: createJSONStorage(() => sessionStorage),
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );

@@ -2,7 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 
 const getNormalizedApiUrl = (): string => {
-  const envUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
+  const envUrl = import.meta.env.VITE_API_URL || 'https://roomwallah-84hk.onrender.com/api/v1';
   const trimmedUrl = envUrl.replace(/\/+$/, '');
   return trimmedUrl.endsWith('/api/v1') ? trimmedUrl : `${trimmedUrl}/api/v1`;
 };
@@ -31,18 +31,45 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
+// Check whether current window path is a public route
+export const isPublicRoute = (): boolean => {
+  try {
+    const rawPath = window.location.pathname.toLowerCase();
+    const path = rawPath.replace(/\/+$/, '') || '/';
+    const exactPublicPaths = [
+      '/',
+      '/login',
+      '/register',
+      '/verify-email',
+      '/forgot-password',
+      '/reset-password',
+      '/search',
+      '/status',
+      '/about',
+      '/faq'
+    ];
+    if (exactPublicPaths.includes(path)) return true;
+    if (path.startsWith('/properties') || path.startsWith('/owners') || path.startsWith('/verify-email')) {
+      return true;
+    }
+    return false;
+  } catch {
+    return true; // fail-safe to public
+  }
+};
+
 // Request Interceptor: Inject in-memory access token
 apiClient.interceptors.request.use(
-      (config) => {
-        const token = useAuthStore.getState().accessToken;
-        if (token && config.headers) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
+  (config) => {
+    const token = useAuthStore.getState().accessToken;
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
 // Response Interceptor: Catch 401 and rotate refresh tokens
@@ -52,9 +79,19 @@ apiClient.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
-    
-    // Return error if not a 401 or request has already been retried
-    if (error.response?.status !== 401 || originalRequest._retry) {
+
+    // Do not attempt refresh for authentication endpoints or if request was already retried
+    const isAuthEndpoint = originalRequest?.url && (
+      originalRequest.url.includes('/auth/login') ||
+      originalRequest.url.includes('/auth/register') ||
+      originalRequest.url.includes('/auth/verify-email') ||
+      originalRequest.url.includes('/auth/resend-verification') ||
+      originalRequest.url.includes('/auth/refresh') ||
+      originalRequest.url.includes('/auth/forgot-password') ||
+      originalRequest.url.includes('/auth/reset-password')
+    );
+
+    if (error.response?.status !== 401 || originalRequest?._retry || isAuthEndpoint) {
       return Promise.reject(error);
     }
 
@@ -64,12 +101,21 @@ apiClient.interceptors.response.use(
       return Promise.reject(error);
     }
 
+    const rawRefreshToken = localStorage.getItem('refreshToken');
+    if (!rawRefreshToken) {
+      useAuthStore.getState().logout();
+      if (!isPublicRoute()) {
+        window.location.href = '/login';
+      }
+      return Promise.reject(error);
+    }
+
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
         failedQueue.push({ resolve, reject });
       })
-        .then((token) => {
-          originalRequest.headers.Authorization = `Bearer ${token}`;
+        .then((newToken) => {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return apiClient(originalRequest);
         })
         .catch((err) => {
@@ -79,23 +125,6 @@ apiClient.interceptors.response.use(
 
     originalRequest._retry = true;
     isRefreshing = true;
-
-    // Utility helper to check if the current page is public
-    const isPublicRoute = (): boolean => {
-      const publicPaths = ['/', '/login', '/register', '/search', '/status'];
-      const path = window.location.pathname;
-      return publicPaths.includes(path) || path.startsWith('/properties/') || path.startsWith('/owners/');
-    };
-
-    const rawRefreshToken = localStorage.getItem('refreshToken');
-    if (!rawRefreshToken) {
-      useAuthStore.getState().logout();
-      isRefreshing = false;
-      if (!isPublicRoute()) {
-        window.location.href = '/login';
-      }
-      return Promise.reject(error);
-    }
 
     try {
       // Trigger token rotation refresh

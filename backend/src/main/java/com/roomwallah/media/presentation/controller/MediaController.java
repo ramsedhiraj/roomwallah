@@ -79,6 +79,42 @@ public class MediaController {
         return ApiResponse.success(responses, "Media retrieved successfully");
     }
 
+    @GetMapping("/properties/{propertyId}/thumbnail")
+    @Operation(summary = "Get property thumbnail or cover image")
+    public ResponseEntity<Resource> getPropertyThumbnail(
+            @PathVariable UUID propertyId,
+            @RequestParam(value = "width", required = false) Integer width,
+            @RequestParam(value = "height", required = false) Integer height
+    ) {
+        log.debug("Received request for property thumbnail: {}", propertyId);
+        List<PropertyMedia> coverList = propertyMediaRepository.findByPropertyIdAndIsCoverTrueAndDeletedFalse(propertyId);
+        PropertyMedia media = !coverList.isEmpty() ? coverList.get(0) : null;
+        if (media == null) {
+            List<PropertyMedia> mediaList = propertyMediaRepository.findByPropertyIdAndDeletedFalseOrderByDisplayOrderAsc(propertyId);
+            if (!mediaList.isEmpty()) {
+                media = mediaList.get(0);
+            }
+        }
+        if (media == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        String key = media.getObjectKey();
+        try {
+            InputStream is = mediaStoragePort.retrieve(key);
+            InputStreamResource resource = new InputStreamResource(is);
+            String contentType = media.getMetadata() != null && media.getMetadata().getMimeType() != null
+                    ? media.getMetadata().getMimeType() : "image/jpeg";
+            return ResponseEntity.ok()
+                    .header(org.springframework.http.HttpHeaders.CACHE_CONTROL, "public, max-age=86400")
+                    .contentType(org.springframework.http.MediaType.parseMediaType(contentType))
+                    .body(resource);
+        } catch (Exception e) {
+            log.warn("Could not retrieve thumbnail image for key {}: {}", key, e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @DeleteMapping("/{mediaId}")
     @Operation(summary = "Soft delete a media item")
     public ApiResponse<Void> deleteMedia(@PathVariable UUID mediaId) {

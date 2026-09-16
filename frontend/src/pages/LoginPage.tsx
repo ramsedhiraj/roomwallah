@@ -7,6 +7,11 @@ import { apiClient } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { useState } from 'react';
 
+// Log helper defined before components to prevent TDZ ReferenceError
+const log = {
+  error: (...args: any[]) => console.error('[Login]', ...args),
+};
+
 const loginSchema = zod.object({
   identity: zod.string().min(1, 'Email or Phone is required'),
   password: zod.string().min(8, 'Password must be at least 8 characters'),
@@ -19,6 +24,12 @@ export default function LoginPage() {
   const { setToken, setUser, setAuthenticated } = useAuthStore();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Email verification resend state
+  const [isUnverified, setIsUnverified] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
 
   // Forgot Password State
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -46,6 +57,8 @@ export default function LoginPage() {
   const onSubmit = async (data: LoginFormInputs) => {
     setIsLoading(true);
     setError(null);
+    setIsUnverified(false);
+    setResendMessage(null);
     try {
       // 1. Post credentials
       const response = await apiClient.post('/auth/login', data);
@@ -62,11 +75,34 @@ export default function LoginPage() {
 
       logInSuccess();
     } catch (err: any) {
-      log.error("Login request failed", err);
-      const msg = err.response?.data?.message || 'Invalid credentials. Please check your username/password.';
-      setError(msg);
+      log.error('Login request failed', err);
+      if (!err.response) {
+        setError('Unable to connect to the server. Please try again.');
+      } else {
+        const msg = err.response?.data?.message || 'Invalid email or password.';
+        setError(msg);
+        if (msg.toLowerCase().includes('verify your email')) {
+          setIsUnverified(true);
+          setUnverifiedEmail(data.identity);
+        }
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!unverifiedEmail) return;
+    setResendLoading(true);
+    setResendMessage(null);
+    try {
+      await apiClient.post('/auth/resend-verification', { email: unverifiedEmail });
+      setResendMessage('Verification email sent! Please check your inbox and click the verification link.');
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Failed to resend verification email. Please try again.';
+      setResendMessage(msg);
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -298,9 +334,33 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3 text-red-400 text-sm animate-fade-in">
-                <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
-                <span>{error}</span>
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl space-y-3 text-red-400 text-sm animate-fade-in">
+                <div className="flex items-start gap-3">
+                  <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
+                  <span>{error}</span>
+                </div>
+                {isUnverified && (
+                  <div className="pt-2 border-t border-red-500/20">
+                    <button
+                      type="button"
+                      disabled={resendLoading}
+                      onClick={handleResendVerification}
+                      className="text-xs font-semibold text-primary hover:underline flex items-center gap-1.5"
+                    >
+                      {resendLoading ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Sending verification link...
+                        </>
+                      ) : (
+                        'Resend verification email'
+                      )}
+                    </button>
+                    {resendMessage && (
+                      <p className="mt-1.5 text-xs text-slate-300">{resendMessage}</p>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
@@ -378,7 +438,3 @@ export default function LoginPage() {
     </div>
   );
 }
-// simple logger helper stub
-const log = {
-  error: (...args: any[]) => console.error("[Login]", ...args)
-};

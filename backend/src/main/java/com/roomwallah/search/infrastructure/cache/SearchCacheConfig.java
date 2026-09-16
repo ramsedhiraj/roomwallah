@@ -31,6 +31,9 @@ public class SearchCacheConfig {
     @Bean("redisCacheManager")
     public CacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
+                .serializeValuesWith(
+                        org.springframework.data.redis.serializer.RedisSerializationContext.SerializationPair.fromSerializer(
+                                new org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer()))
                 .entryTtl(Duration.ofMinutes(10))
                 .disableCachingNullValues();
         return RedisCacheManager.builder(connectionFactory)

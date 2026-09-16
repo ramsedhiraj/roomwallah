@@ -68,6 +68,18 @@ public class User extends BaseEntity {
     @Column(name = "email_verified_at")
     private Instant emailVerifiedAt;
 
+    @Column(name = "email_verification_token_hash", length = 255)
+    private String emailVerificationTokenHash;
+
+    @Column(name = "email_verification_token_expires_at")
+    private Instant emailVerificationTokenExpiresAt;
+
+    @Column(name = "password_reset_token_hash", length = 255)
+    private String passwordResetTokenHash;
+
+    @Column(name = "password_reset_token_expires_at")
+    private Instant passwordResetTokenExpiresAt;
+
     @Column(name = "phone_verified", nullable = false)
     private boolean phoneVerified = false;
 

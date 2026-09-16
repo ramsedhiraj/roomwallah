@@ -23,6 +23,8 @@ public class IdentityFacadeImpl implements IdentityFacade {
     private final UserRepository userRepository;
     private final com.roomwallah.verification.application.service.OtpService otpService;
     private final PasswordEncoderPort passwordEncoderPort;
+    private final EmailVerificationService emailVerificationService;
+    private final PasswordResetService passwordResetService;
 
     @Override
     public User register(RegisterRequest request) {
@@ -62,42 +64,16 @@ public class IdentityFacadeImpl implements IdentityFacade {
                 .build();
     }
 
-    // Password policy regex matching the one in RegistrationServiceImpl
-    private static final java.util.regex.Pattern PASSWORD_PATTERN = java.util.regex.Pattern.compile(
-            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?=\\S+$).{8,}$"
-    );
-
     @Override
     @org.springframework.transaction.annotation.Transactional
     public void forgotPassword(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User with this email does not exist"));
-        otpService.generateOtp(user.getId(), email, "PASSWORD_RESET_OTP");
+        passwordResetService.forgotPassword(email);
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional
     public void resetPassword(String email, String code, String newPassword, String confirmPassword) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User with this email does not exist"));
-        if (newPassword == null || !PASSWORD_PATTERN.matcher(newPassword).matches()) {
-            throw new IllegalArgumentException(
-                    "Password must be at least 8 characters long and contain at least " +
-                    "one uppercase letter, one lowercase letter, one digit, and one special character."
-            );
-        }
-        if (!newPassword.equals(confirmPassword)) {
-            throw new IllegalArgumentException("Passwords do not match");
-        }
-        boolean success = otpService.verifyOtp(user.getId(), code, "PASSWORD_RESET_OTP");
-        if (!success) {
-            throw new IllegalArgumentException("Invalid or expired OTP code");
-        }
-        user.setPasswordHash(passwordEncoderPort.encode(newPassword));
-        user.setFailedLoginCount(0);
-        user.setStatus(com.roomwallah.user.entity.AccountStatus.ACTIVE);
-        user.setLockUntil(null);
-        userRepository.save(user);
+        passwordResetService.resetPassword(email, code, newPassword, confirmPassword);
     }
 
     @Override
@@ -109,6 +85,18 @@ public class IdentityFacadeImpl implements IdentityFacade {
         if (!success) {
             throw new IllegalArgumentException("Invalid or expired email verification code");
         }
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void verifyEmailByToken(String token) {
+        emailVerificationService.verifyEmailToken(token);
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void resendVerification(String email) {
+        emailVerificationService.resendVerificationEmail(email);
     }
 
     @Override

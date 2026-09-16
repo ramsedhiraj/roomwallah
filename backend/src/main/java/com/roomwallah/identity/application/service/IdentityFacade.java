@@ -15,5 +15,7 @@ public interface IdentityFacade {
     void forgotPassword(String email);
     void resetPassword(String email, String code, String newPassword, String confirmPassword);
     void verifyEmail(String email, String code);
+    void verifyEmailByToken(String token);
+    void resendVerification(String email);
     void requestLoginOtp(String email);
 }

@@ -7,6 +7,7 @@ import ProtectedRoute from '../components/ProtectedRoute';
 const LandingPage = lazy(() => import('../pages/LandingPage'));
 const LoginPage = lazy(() => import('../pages/LoginPage'));
 const RegisterPage = lazy(() => import('../pages/RegisterPage'));
+const VerifyEmailPage = lazy(() => import('../pages/VerifyEmailPage'));
 const ProfilePage = lazy(() => import('../pages/ProfilePage'));
 const ChangePasswordPage = lazy(() => import('../pages/ChangePasswordPage'));
 const SettingsPage = lazy(() => import('../pages/SettingsPage'));
@@ -87,7 +88,10 @@ export default function AppRoutes() {
         <Route path="/" element={<MainLayout />}>
           <Route index element={<LandingPage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="forgot-password" element={<LoginPage />} />
+          <Route path="reset-password" element={<LoginPage />} />
           <Route path="register" element={<RegisterPage />} />
+          <Route path="verify-email" element={<VerifyEmailPage />} />
           
           {/* Public Property Details */}
           <Route path="properties/:id" element={<PropertyDetailPage />} />

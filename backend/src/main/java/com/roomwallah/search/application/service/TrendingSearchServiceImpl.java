@@ -31,7 +31,7 @@ public class TrendingSearchServiceImpl implements TrendingSearchService {
     }
 
     @Override
-    @Cacheable(value = "trending", key = "#city != null ? #city : 'global'", cacheManager = "redisCacheManager")
+    @Cacheable(value = "trending", key = "{#city != null ? #city : 'global', #limit}", cacheManager = "caffeineCacheManager")
     @Transactional(readOnly = true)
     public List<TrendingQuery> getTrending(String city, int limit) {
         log.debug("Fetching trending searches for city: {}, limit: {}", city, limit);
@@ -47,7 +47,7 @@ public class TrendingSearchServiceImpl implements TrendingSearchService {
 
     @Override
     @Transactional
-    @CacheEvict(value = "trending", allEntries = true)
+    @CacheEvict(value = "trending", allEntries = true, cacheManager = "caffeineCacheManager")
     public void aggregateTrendingQueries() {
         log.info("Aggregating trending queries from search analytics of the last 24 hours...");
         Instant since = Instant.now().minus(24, ChronoUnit.HOURS);

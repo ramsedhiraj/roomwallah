@@ -3,18 +3,13 @@ import { ChevronLeft, ChevronRight, Home, ShieldCheck, MapPin } from 'lucide-rea
 import { searchService, PropertyCard } from '../services/searchService';
 import { motion } from 'framer-motion';
 import { WishlistButton } from './WishlistButton';
+import { getFullMediaUrl, formatIndianPrice, FALLBACK_PROPERTY_IMAGE } from '../utils';
 
 interface Props {
   currentPropertyId: string;
   propertyType: string;
   city: string;
   locality?: string;
-}
-
-function formatPrice(price: number): string {
-  if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
-  if (price >= 100000) return `₹${(price / 100000).toFixed(2)} L`;
-  return `₹${price.toLocaleString('en-IN')}`;
 }
 
 export default function SimilarListings({ currentPropertyId, propertyType, city, locality }: Props) {
@@ -130,16 +125,15 @@ export default function SimilarListings({ currentPropertyId, propertyType, city,
             transition={{ duration: 0.3, delay: idx * 0.05 }}
             className="w-[300px] flex-shrink-0 glass glass-hover rounded-2xl overflow-hidden block transition-all duration-300 hover:-translate-y-1"
           >
-            <div className="relative h-40 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center">
-              {property.thumbnailUrl ? (
-                <img 
-                  src={property.thumbnailUrl} 
-                  alt={property.title} 
-                  className="w-full h-full object-cover" 
-                />
-              ) : (
-                <span className="text-xs text-slate-600 font-semibold">Listing Image</span>
-              )}
+            <div className="relative h-40 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden">
+              <img 
+                src={getFullMediaUrl(property.thumbnailUrl)} 
+                alt={property.title} 
+                className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" 
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = FALLBACK_PROPERTY_IMAGE;
+                }}
+              />
               
               <div className="absolute top-2 right-2 flex items-center gap-1 z-10">
                 {property.ownerVerified && (
@@ -155,7 +149,7 @@ export default function SimilarListings({ currentPropertyId, propertyType, city,
             <div className="p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-md font-bold text-slate-200">
-                  {formatPrice(property.price)}
+                  {formatIndianPrice(property.price)}
                   {property.listingPurpose === 'RENT' && <span className="text-[10px] text-muted-foreground font-normal">/mo</span>}
                 </span>
                 <span className="text-[9px] text-muted-foreground uppercase font-medium bg-slate-800 px-2 py-0.5 rounded border border-slate-700/50">

@@ -29,7 +29,7 @@ public class SecurityConfig {
     private final com.roomwallah.partner.filter.ApiKeyAuthenticationFilter apiKeyAuthenticationFilter;
     private final com.roomwallah.security.filter.ZeroTrustFilter zeroTrustFilter;
 
-    @Value("${cors.allowed-origins:http://localhost:5173,http://127.0.0.1:5173}")
+    @Value("${cors.allowed-origins:https://www.roomwallah.co.in,https://roomwallah.co.in,http://localhost:5173,http://127.0.0.1:5173}")
     private List<String> allowedOrigins;
 
     @Bean
@@ -48,9 +48,10 @@ public class SecurityConfig {
                     "/api/v1/auth/forgot-password",
                     "/api/v1/auth/reset-password",
                     "/api/v1/auth/verify-email",
+                    "/api/v1/auth/resend-verification",
                     "/api/v1/auth/login/otp/request",
                     "/api/v1/owners/*/public-profile",
-                    "/api/v1/media/properties/*",
+                    "/api/v1/media/properties/**",
                     "/api/v1/media/files/**",
                     "/api/v1/search",
                     "/api/v1/search/autocomplete",
@@ -70,6 +71,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/admin/visits/**").hasAnyRole("ADMIN", "OWNER")
                 .requestMatchers("/api/v1/partner/**").hasRole("PARTNER")
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/properties/me").authenticated()
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/properties").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/properties/*").permitAll()
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/properties/*/view").permitAll()
                 .requestMatchers("/api/v1/wishlist/**").authenticated()
@@ -94,7 +96,22 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(allowedOrigins);
+        java.util.Set<String> originPatterns = new java.util.LinkedHashSet<>(List.of(
+                "https://www.roomwallah.co.in",
+                "https://roomwallah.co.in",
+                "https://*.roomwallah.co.in",
+                "https://*.vercel.app",
+                "http://localhost:5173",
+                "http://127.0.0.1:5173"
+        ));
+        if (allowedOrigins != null) {
+            for (String origin : allowedOrigins) {
+                if (origin != null && !origin.isBlank()) {
+                    originPatterns.add(origin.trim());
+                }
+            }
+        }
+        configuration.setAllowedOriginPatterns(new java.util.ArrayList<>(originPatterns));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of(
                 "Authorization",

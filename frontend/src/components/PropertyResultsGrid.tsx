@@ -2,16 +2,11 @@ import { useRef, useState, useEffect } from 'react';
 import { MapPin, Bed, Bath, Car, Shield, ShieldCheck, PawPrint, Clock, ImageIcon } from 'lucide-react';
 import type { PropertyCard } from '../services/searchService';
 import { WishlistButton } from './WishlistButton';
+import { getFullMediaUrl, formatIndianPrice, FALLBACK_PROPERTY_IMAGE } from '../utils';
 
 interface Props {
   results: PropertyCard[];
   loading: boolean;
-}
-
-function formatPrice(price: number): string {
-  if (price >= 10000000) return `₹${(price / 10000000).toFixed(2)} Cr`;
-  if (price >= 100000) return `₹${(price / 100000).toFixed(2)} L`;
-  return `₹${price.toLocaleString('en-IN')}`;
 }
 
 function timeAgo(dateStr: string | null): string {
@@ -107,16 +102,15 @@ export default function PropertyResultsGrid({ results, loading }: Props) {
           >
             {/* Image Thumbnail */}
             <div className="relative h-48 bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center overflow-hidden">
-              {property.thumbnailUrl ? (
-                <img
-                  src={property.thumbnailUrl}
-                  alt={property.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  loading="lazy"
-                />
-              ) : (
-                <ImageIcon className="w-12 h-12 text-slate-700" />
-              )}
+              <img
+                src={getFullMediaUrl(property.thumbnailUrl)}
+                alt={property.title}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = FALLBACK_PROPERTY_IMAGE;
+                }}
+              />
               {/* Badge overlays */}
               <div className="absolute top-3 left-3 flex gap-2">
                 {property.ownerVerified && (
@@ -151,7 +145,7 @@ export default function PropertyResultsGrid({ results, loading }: Props) {
                 {/* Price & Type */}
                 <div className="flex items-center justify-between">
                   <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                    {formatPrice(property.price)}
+                    {formatIndianPrice(property.price)}
                     {property.listingPurpose === 'RENT' && <span className="text-xs text-muted-foreground font-normal">/mo</span>}
                   </span>
                   <span className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-800/60 border border-slate-700/40">

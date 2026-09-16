@@ -33,3 +33,17 @@ logging:
   level:
     root: WARN
     com.roomwallah: INFO
+
+server:
+  port: ${PORT:${SERVER_PORT:10000}}
+  address: 0.0.0.0
+  servlet:
+    context-path: /
+
+roomwallah:
+  frontend:
+    url: ${FRONTEND_URL:https://www.roomwallah.co.in}
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://www.roomwallah.co.in,https://roomwallah.co.in}
+

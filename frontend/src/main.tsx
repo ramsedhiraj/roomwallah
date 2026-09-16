@@ -12,28 +12,16 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   </React.StrictMode>
 );
 
-// Register service worker for PWA capabilities
-const disableSW = localStorage.getItem('disable-service-worker') === 'true';
-
-if ('serviceWorker' in navigator && !disableSW) {
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) {
-      refreshing = true;
-      console.log('New Service Worker activated, refreshing client...');
-      window.location.reload();
-    }
-  });
-
+// Register service worker for PWA capabilities in production only
+if (import.meta.env.PROD && 'serviceWorker' in navigator && localStorage.getItem('disable-service-worker') !== 'true') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
       .then((registration) => {
-        console.log('ServiceWorker registered with scope: ', registration.scope);
-        // Force check for updated service worker script on server immediately
+        // Check for updates periodically
         registration.update().catch(() => {});
       })
       .catch((err) => {
-        console.log('ServiceWorker registration failed: ', err);
+        console.warn('ServiceWorker registration failed: ', err);
       });
   });
 }

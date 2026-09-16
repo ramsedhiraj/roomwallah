@@ -41,6 +41,12 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Bypass cache completely for API calls (never cache auth, profile, properties, bookings)
+  // except search which has explicit offline stale-while-revalidate handling
+  if (requestUrl.pathname.startsWith('/api/v1/') && !requestUrl.pathname.includes('/api/v1/search')) {
+    return;
+  }
+
   // Network-First for navigation (HTML page) requests so deployments take effect immediately
   if (event.request.mode === 'navigate') {
     event.respondWith(

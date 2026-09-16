@@ -19,7 +19,7 @@ public class SmtpNotificationAdapter implements NotificationPort, NotificationSe
 
     private final ObjectProvider<JavaMailSender> mailSenderProvider;
 
-    @Value("${roomwallah.mail.from:no-reply@roomwallah.co.in}")
+    @Value("${roomwallah.mail.from:${spring.mail.username:no-reply@roomwallah.co.in}}")
     private String fromAddress;
 
     @Value("${spring.mail.host:}")
@@ -30,10 +30,16 @@ public class SmtpNotificationAdapter implements NotificationPort, NotificationSe
 
     @Override
     public void sendEmail(String to, String subject, String body) {
+        sendEmail(to, subject, body, null);
+    }
+
+    @Override
+    public void sendEmail(String to, String subject, String plainTextBody, String htmlBody) {
         JavaMailSender mailSender = mailSenderProvider.getIfAvailable();
         boolean isProduction = isProductionEnvironment();
 
-        boolean isSmtpConfigured = mailSender != null && mailHost != null && !mailHost.isBlank() && !"localhost".equalsIgnoreCase(mailHost);
+        boolean hasMailHost = mailHost != null && !mailHost.isBlank();
+        boolean isSmtpConfigured = mailSender != null && hasMailHost;
 
         if (isProduction && !isSmtpConfigured) {
             log.error("Production SMTP host is not configured. Unable to send email to: {}", to);
@@ -42,21 +48,42 @@ public class SmtpNotificationAdapter implements NotificationPort, NotificationSe
 
         if (isSmtpConfigured) {
             try {
-                SimpleMailMessage message = new SimpleMailMessage();
-                message.setFrom(fromAddress);
-                message.setTo(to);
-                message.setSubject(subject);
-                message.setText(body);
+                jakarta.mail.internet.MimeMessage mimeMessage = mailSender.createMimeMessage();
+                org.springframework.mail.javamail.MimeMessageHelper helper = 
+                        new org.springframework.mail.javamail.MimeMessageHelper(
+                                mimeMessage, 
+                                org.springframework.mail.javamail.MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, 
+                                java.nio.charset.StandardCharsets.UTF_8.name());
 
-                mailSender.send(message);
+                String senderFrom = (fromAddress != null && !fromAddress.isBlank()) ? fromAddress : "no-reply@roomwallah.co.in";
+                try {
+                    helper.setFrom(senderFrom, "RoomWallah");
+                } catch (Exception e) {
+                    helper.setFrom(senderFrom);
+                }
+                helper.setTo(to);
+                helper.setSubject(subject);
+
+                if (htmlBody != null && !htmlBody.isBlank()) {
+                    helper.setText(plainTextBody != null ? plainTextBody : "", htmlBody);
+                } else {
+                    helper.setText(plainTextBody != null ? plainTextBody : "", false);
+                }
+
+                mailSender.send(mimeMessage);
                 log.info("Email sent successfully via SMTP [Host: {}] - To: {}, Subject: {}", mailHost, to, subject);
             } catch (Exception e) {
                 log.error("Failed to send email via SMTP [Host: {}] to {}: {}", mailHost, to, e.getMessage());
-                throw new IllegalStateException("Failed to deliver verification email. Please try again later.", e);
+                if (isProduction) {
+                    throw new IllegalStateException("Failed to deliver transactional email. Please try again later.", e);
+                } else {
+                    log.info("[LOCAL DEV MAIL FALLBACK - SMTP Connection Failed] To: {}, Subject: {}\nPlain Text:\n{}\n", 
+                            to, subject, plainTextBody);
+                }
             }
         } else {
             // Local development mock fallback
-            log.info("[LOCAL DEV MAIL] To: {}, Subject: {}", to, subject);
+            log.info("[LOCAL DEV MAIL] To: {}, Subject: {}\nPlain Text:\n{}\n", to, subject, plainTextBody);
         }
     }
 

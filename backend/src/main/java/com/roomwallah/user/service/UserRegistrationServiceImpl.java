@@ -20,6 +20,7 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
     private final UserRepository userRepository;
     private final EventPublisherPort eventPublisher;
     private final Clock clock;
+    private final com.roomwallah.identity.application.service.EmailVerificationService emailVerificationService;
 
     @Override
     @Transactional
@@ -51,6 +52,9 @@ public class UserRegistrationServiceImpl implements UserRegistrationService {
         user.setPreferences(preferences);
 
         User savedUser = userRepository.save(user);
+
+        // Generate email verification token and send verification email
+        emailVerificationService.createAndSendVerification(savedUser);
 
         // Publish registration domain event
         UserRegisteredEvent event = UserRegisteredEvent.builder()

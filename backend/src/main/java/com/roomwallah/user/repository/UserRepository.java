@@ -23,4 +23,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     @EntityGraph(attributePaths = {"preferences"})
     Optional<User> findByProviderAndProviderId(String provider, String providerId);
+
+    Optional<User> findByEmailVerificationTokenHash(String emailVerificationTokenHash);
+    Optional<User> findByPasswordResetTokenHash(String passwordResetTokenHash);
 }

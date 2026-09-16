@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient, API_URL } from './api';
 
 export interface BookingRequest {
   propertyId: string;
@@ -108,8 +108,7 @@ export const bookingService = {
   },
 
   downloadIcsUrl: (id: string): string => {
-    const baseURL = apiClient.defaults.baseURL || 'http://localhost:8080/api/v1';
-    return `${baseURL}/visits/${id}/ics`;
+    return `${API_URL}/visits/${id}/ics`;
   },
 
   // Owner/Admin Booking Actions
@@ -220,12 +219,10 @@ export const bookingService = {
 
   // SSE Stream Connections
   getTenantStreamUrl: (): string => {
-    const baseURL = apiClient.defaults.baseURL || 'http://localhost:8080/api/v1';
-    return `${baseURL}/bookings/stream`;
+    return `${API_URL}/bookings/stream`;
   },
 
   getAdminStreamUrl: (): string => {
-    const baseURL = apiClient.defaults.baseURL || 'http://localhost:8080/api/v1';
-    return `${baseURL}/admin/bookings/stream`;
+    return `${API_URL}/admin/bookings/stream`;
   }
 };

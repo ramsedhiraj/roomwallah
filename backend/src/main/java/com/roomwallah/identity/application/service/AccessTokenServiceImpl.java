@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Base64;
@@ -72,6 +73,9 @@ public class AccessTokenServiceImpl implements AccessTokenService {
     @Override
     public boolean isTokenExpired(String token) {
         try {
+            if (!validateSignature(token)) {
+                return true;
+            }
             Number exp = (Number) extractClaim(token, "exp");
             if (exp == null) return true;
             Instant expiry = Instant.ofEpochSecond(exp.longValue());
@@ -91,6 +95,22 @@ public class AccessTokenServiceImpl implements AccessTokenService {
         } catch (Exception e) {
             log.warn("Failed to extract claim {} from token", claimName);
             return null;
+        }
+    }
+
+    private boolean validateSignature(String token) {
+        try {
+            String[] parts = token.split("\\.");
+            if (parts.length != 3) return false;
+            String signInput = parts[0] + "." + parts[1];
+            String expectedSignature = calculateHmacSha256(signInput, jwtSecret);
+            return MessageDigest.isEqual(
+                    expectedSignature.getBytes(StandardCharsets.UTF_8),
+                    parts[2].getBytes(StandardCharsets.UTF_8)
+            );
+        } catch (Exception e) {
+            log.warn("JWT signature verification failed: {}", e.getMessage());
+            return false;
         }
     }
 

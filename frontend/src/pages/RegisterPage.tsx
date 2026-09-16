@@ -6,6 +6,11 @@ import { User, Mail, Phone, Lock, Sparkles, Loader2, ShieldCheck, ShieldAlert } 
 import { apiClient } from '../services/api';
 import { useState } from 'react';
 
+// Log helper defined before components to prevent TDZ ReferenceError
+const log = {
+  error: (...args: any[]) => console.error('[Register]', ...args),
+};
+
 const registerSchema = zod.object({
   fullName: zod.string().min(2, 'Name must be at least 2 characters'),
   email: zod.string().email('Invalid email address'),
@@ -29,6 +34,12 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Post-registration email verification prompt state
+  const [isRegistered, setIsRegistered] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState('');
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState<string | null>(null);
+
   const {
     register,
     handleSubmit,
@@ -50,16 +61,34 @@ export default function RegisterPage() {
     setSuccess(null);
     try {
       await apiClient.post('/auth/register', data);
-      setSuccess('Registration successful! Redirecting to login page...');
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      setRegisteredEmail(data.email);
+      setIsRegistered(true);
+      setSuccess('Account created! Please check your email to verify your account.');
     } catch (err: any) {
-      log.error("Register request failed", err);
-      const msg = err.response?.data?.message || 'Registration failed. Email or phone number might already be in use.';
-      setError(msg);
+      log.error('Register request failed', err);
+      if (!err.response) {
+        setError('Unable to connect to the server. Please check your connection or try again later.');
+      } else {
+        const msg = err.response?.data?.message || 'Registration failed. Email or phone number might already be in use.';
+        setError(msg);
+      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (!registeredEmail) return;
+    setResendLoading(true);
+    setResendMessage(null);
+    try {
+      await apiClient.post('/auth/resend-verification', { email: registeredEmail });
+      setResendMessage('Verification email sent! Please check your inbox.');
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Failed to resend verification email. Please try again.';
+      setResendMessage(msg);
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -68,37 +97,79 @@ export default function RegisterPage() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-indigo-500/10 blur-[100px] pointer-events-none"></div>
 
       <div className="w-full max-w-md glass p-8 rounded-2xl border border-slate-800 relative z-10 animate-fade-in">
-        <div className="text-center mb-8 space-y-2">
-          <div className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-medium border border-indigo-500/20">
-            <Sparkles className="w-3 h-3" />
-            <span>Join RoomWallah</span>
-          </div>
-          <h2 className="text-3xl font-extrabold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-            Create Account
-          </h2>
-          <p className="text-slate-400 text-sm">
-            Sign up directly as a tenant or verified homeowner
-          </p>
-        </div>
+        {isRegistered ? (
+          <div className="space-y-6 text-center animate-fade-in">
+            <div className="mx-auto w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+              <Mail className="w-7 h-7" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold text-white">Verify Your Email</h3>
+              <p className="text-sm text-slate-300">
+                We've sent a verification link to <span className="font-semibold text-white">{registeredEmail}</span>.
+              </p>
+              <p className="text-xs text-slate-400">
+                Please check your inbox and click the link to activate your account.
+              </p>
+            </div>
 
-        {error && (
-          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3 text-red-400 text-sm animate-fade-in">
-            <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
-            <span>{error}</span>
-          </div>
-        )}
+            {resendMessage && (
+              <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs text-indigo-300">
+                {resendMessage}
+              </div>
+            )}
 
-        {success && (
-          <div className="mb-6 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex items-start gap-3 text-emerald-400 text-sm animate-fade-in">
-            <ShieldCheck className="w-5 h-5 shrink-0 mt-0.5" />
-            <span>{success}</span>
-          </div>
-        )}
+            <div className="space-y-3 pt-2">
+              <button
+                type="button"
+                disabled={resendLoading}
+                onClick={handleResend}
+                className="w-full py-2.5 px-4 bg-slate-900 border border-slate-700 text-slate-200 text-sm font-semibold rounded-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+              >
+                {resendLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending link...
+                  </>
+                ) : (
+                  'Resend Verification Email'
+                )}
+              </button>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* Role selector buttons */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-300 block">Select Role</label>
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="w-full py-2.5 px-4 bg-gradient-to-r from-primary to-secondary text-white text-sm font-semibold rounded-xl hover:opacity-95 transition-all"
+              >
+                Continue to Login
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div>
+            <div className="text-center mb-8 space-y-2">
+              <div className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-400 text-xs font-medium border border-indigo-500/20">
+                <Sparkles className="w-3 h-3" />
+                <span>Join RoomWallah</span>
+              </div>
+              <h2 className="text-3xl font-extrabold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
+                Create Account
+              </h2>
+              <p className="text-slate-400 text-sm">
+                Sign up directly as a tenant or verified homeowner
+              </p>
+            </div>
+
+            {error && (
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3 text-red-400 text-sm animate-fade-in">
+                <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+              {/* Role selector buttons */}
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-300 block">Select Role</label>
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
@@ -216,17 +287,15 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        <p className="mt-8 text-center text-sm text-slate-400">
-          Already have an account?{" "}
-          <Link to="/login" className="text-primary font-semibold hover:underline">
-            Sign in
-          </Link>
-        </p>
+          <p className="mt-8 text-center text-sm text-slate-400">
+            Already have an account?{" "}
+            <Link to="/login" className="text-primary font-semibold hover:underline">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      )}
       </div>
     </div>
   );
 }
-
-const log = {
-  error: (...args: any[]) => console.error("[Register]", ...args)
-};

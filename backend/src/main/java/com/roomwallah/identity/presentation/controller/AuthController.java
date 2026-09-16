@@ -11,6 +11,7 @@ import com.roomwallah.identity.presentation.dto.UserProfileResponse;
 import com.roomwallah.identity.presentation.dto.ForgotPasswordRequest;
 import com.roomwallah.identity.presentation.dto.ResetPasswordRequest;
 import com.roomwallah.identity.presentation.dto.VerifyEmailRequest;
+import com.roomwallah.identity.presentation.dto.ResendVerificationRequest;
 import com.roomwallah.identity.presentation.dto.LoginOtpRequest;
 import com.roomwallah.user.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -124,12 +126,28 @@ public class AuthController {
         return ApiResponse.success(null, "Password reset successfully");
     }
 
+    @GetMapping("/verify-email")
+    @Operation(summary = "Verify user email using verification token")
+    public ApiResponse<Void> verifyEmailWithToken(@RequestParam("token") String token) {
+        log.info("Received email verification request with token");
+        identityFacade.verifyEmailByToken(token);
+        return ApiResponse.success(null, "Email verified successfully. You can now log in.");
+    }
+
     @PostMapping("/verify-email")
     @Operation(summary = "Verify user email using OTP code")
     public ApiResponse<Void> verifyEmail(@Valid @RequestBody VerifyEmailRequest request) {
         log.info("Received email verification request for email: {}", request.getEmail());
         identityFacade.verifyEmail(request.getEmail(), request.getCode());
         return ApiResponse.success(null, "Email verified successfully");
+    }
+
+    @PostMapping("/resend-verification")
+    @Operation(summary = "Resend verification email to user")
+    public ApiResponse<Void> resendVerification(@Valid @RequestBody ResendVerificationRequest request) {
+        log.info("Received resend email verification request for email: {}", request.getEmail());
+        identityFacade.resendVerification(request.getEmail());
+        return ApiResponse.success(null, "If your email is registered and unverified, a verification link has been sent.");
     }
 
     @PostMapping("/login/otp/request")

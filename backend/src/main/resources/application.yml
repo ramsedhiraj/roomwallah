@@ -20,16 +20,16 @@ spring:
     locations: classpath:db/migration
     baseline-on-migrate: true
   mail:
-    host: ${SPRING_MAIL_HOST:localhost}
-    port: ${SPRING_MAIL_PORT:1025}
+    host: ${SPRING_MAIL_HOST:}
+    port: ${SPRING_MAIL_PORT:587}
     username: ${SPRING_MAIL_USERNAME:}
     password: ${SPRING_MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
-          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:false}
+          auth: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH:true}
           starttls:
-            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:false}
+            enable: ${SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE:true}
   jackson:
     date-format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
     time-zone: UTC
@@ -38,6 +38,7 @@ spring:
 
 server:
   port: ${PORT:${SERVER_PORT:8080}}
+  address: 0.0.0.0
   servlet:
     context-path: /
 
@@ -59,6 +60,10 @@ logging:
     org.hibernate.SQL: INFO
 
 roomwallah:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:5173}
+  verification:
+    token-expiration-hours: ${VERIFICATION_TOKEN_EXPIRATION_HOURS:24}
   mail:
     from: ${MAIL_FROM_ADDRESS:no-reply@roomwallah.co.in}
   booking:
@@ -91,7 +96,7 @@ roomwallah:
       cashfree-secret: ${CASHFREE_WEBHOOK_SECRET:whsec_cashfree_placeholder}
 
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://www.roomwallah.co.in,https://roomwallah.co.in,http://localhost:5173,http://127.0.0.1:5173}
 
 storage:
   location: ${STORAGE_LOCATION:storage}

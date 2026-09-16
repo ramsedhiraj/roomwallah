@@ -1,4 +1,4 @@
-import { apiClient } from './api';
+import { apiClient, API_URL } from './api';
 
 // ──────────────────────────────────────────────
 // TypeScript Interfaces
@@ -179,8 +179,7 @@ export const paymentService = {
   },
 
   getInvoicePdfUrl: (invoiceId: string): string => {
-    const baseURL = apiClient.defaults.baseURL || 'http://localhost:8080/api/v1';
-    return `${baseURL}/payments/invoices/${invoiceId}/pdf`;
+    return `${API_URL}/payments/invoices/${invoiceId}/pdf`;
   },
 
   // Escrow (Owner)

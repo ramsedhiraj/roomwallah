@@ -24,14 +24,17 @@ import {
   Loader2
 } from 'lucide-react';
 import { apiClient } from '../services/api';
-import { Property } from '../types';
+import { Property, PropertyMedia } from '../types';
 import SimilarListings from '../components/SimilarListings';
 import RecommendedForYou from '../components/RecommendedForYou';
 import { WishlistButton } from '../components/WishlistButton';
+import { getFullMediaUrl, formatIndianPrice, FALLBACK_PROPERTY_IMAGE } from '../utils';
 
 export default function PropertyDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [property, setProperty] = useState<Property | null>(null);
+  const [mediaList, setMediaList] = useState<PropertyMedia[]>([]);
+  const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -51,8 +54,13 @@ export default function PropertyDetailPage() {
     const fetchProperty = async () => {
       try {
         setLoading(true);
-        const res = await apiClient.get(`/properties/${id}`);
-        setProperty(res.data.data);
+        const [propRes, mediaRes] = await Promise.all([
+          apiClient.get(`/properties/${id}`),
+          apiClient.get(`/media/properties/${id}`).catch(() => ({ data: { data: [] } }))
+        ]);
+        setProperty(propRes.data.data);
+        const images = (mediaRes.data?.data || []).filter((m: PropertyMedia) => m.mediaType === 'IMAGE');
+        setMediaList(images);
         setError(null);
         
         // Fire-and-forget view count increment
@@ -147,6 +155,55 @@ export default function PropertyDetailPage() {
         <ArrowLeft className="w-4 h-4" />
         <span>Back</span>
       </button>
+
+      {/* Hero Media Gallery */}
+      <div className="mb-8 rounded-3xl overflow-hidden glass border border-slate-800/80 shadow-2xl">
+        <div className="relative h-72 sm:h-96 md:h-[480px] bg-slate-950 flex items-center justify-center overflow-hidden">
+          <img
+            src={
+              mediaList.length > 0
+                ? getFullMediaUrl(mediaList[activeMediaIndex]?.url || mediaList[0].url)
+                : getFullMediaUrl(`/properties/${property.id}/thumbnail`)
+            }
+            alt={property.title}
+            className="w-full h-full object-cover transition-all duration-500"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = FALLBACK_PROPERTY_IMAGE;
+            }}
+          />
+          {mediaList.length > 1 && (
+            <div className="absolute bottom-4 right-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/10 text-xs font-semibold text-slate-200">
+              {activeMediaIndex + 1} / {mediaList.length} Photos
+            </div>
+          )}
+        </div>
+
+        {/* Thumbnail Row */}
+        {mediaList.length > 1 && (
+          <div className="p-3 bg-slate-950/60 border-t border-slate-900 flex gap-3 overflow-x-auto no-scrollbar">
+            {mediaList.map((m, idx) => (
+              <button
+                key={m.id}
+                onClick={() => setActiveMediaIndex(idx)}
+                className={`relative flex-shrink-0 w-20 h-16 rounded-xl overflow-hidden border-2 transition-all ${
+                  activeMediaIndex === idx
+                    ? 'border-primary ring-2 ring-primary/30 scale-105'
+                    : 'border-slate-800 opacity-60 hover:opacity-100'
+                }`}
+              >
+                <img
+                  src={getFullMediaUrl(m.url)}
+                  alt={`Thumbnail ${idx + 1}`}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = FALLBACK_PROPERTY_IMAGE;
+                  }}
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Main Grid: Details Left, Sidebar Right */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -384,7 +441,7 @@ export default function PropertyDetailPage() {
               <div className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Cost</div>
               <div className="flex items-baseline gap-1">
                 <span className="text-3xl font-extrabold text-white">
-                  ₹ {property.price.amount.toLocaleString('en-IN')}
+                  {formatIndianPrice(property.price.amount)}
                 </span>
                 <span className="text-slate-400 text-sm">/ {property.listingPurpose === 'RENT' ? 'month' : 'total'}</span>
               </div>
@@ -401,7 +458,7 @@ export default function PropertyDetailPage() {
                 <div className="flex justify-between items-center text-slate-350">
                   <span>Security Deposit:</span>
                   <span className="font-bold text-slate-200">
-                    ₹ {property.securityDeposit.amount.toLocaleString('en-IN')}
+                    {formatIndianPrice(property.securityDeposit.amount)}
                   </span>
                 </div>
               )}
@@ -410,11 +467,19 @@ export default function PropertyDetailPage() {
                 <div className="flex justify-between items-center text-slate-350">
                   <span>Maintenance Charges:</span>
                   <span className="font-bold text-slate-200">
-                    ₹ {property.maintenanceCharges.amount.toLocaleString('en-IN')} /mo
+                    {formatIndianPrice(property.maintenanceCharges.amount)} /mo
                   </span>
                 </div>
               )}
             </div>
+
+            <Link
+              to={`/properties/${property.id}/book-visit`}
+              className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-gradient-to-r from-primary via-indigo-600 to-secondary text-white font-bold shadow-lg shadow-primary/25 hover:shadow-primary/40 hover:-translate-y-0.5 transition-all text-sm"
+            >
+              <Calendar className="w-4.5 h-4.5" />
+              <span>Schedule Physical Visit</span>
+            </Link>
           </div>
 
           {/* Owner Details Card */}
